@@ -257,7 +257,7 @@ gitpushy-push-replicate() {
         if gitpushy-server-is-local $SERVER; then
             continue
         elif git status 2>&1 1>/dev/null; then
-            echo "Pushing commit to remote $1"
+            echo "GitPushy - Pushing commit to remote $1"
 
             git remote add $1 ssh://$PUSHY_USER@$1:$PUSHY_PORT/$PUSHY_REPO
             git checkout -b $1
