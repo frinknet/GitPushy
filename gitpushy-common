@@ -330,7 +330,7 @@ gitpushy-init() {
 }
 
 gitpushy-committer() {
-    git log -1|grep -Po "(?<=Author:\s).*(?=\s\+\<)"
+    git log -1|grep -Po "(?<=Author:\s).*(?=\s+\<)"
 }
 
 gitpushy-server-ip() {
