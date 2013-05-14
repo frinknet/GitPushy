@@ -251,7 +251,7 @@ gitpushy-push-replicate() {
     [ -z "$1" ] && return 402
     [ "$(gitpushy-committer)" = "GitPushy" ] && return 401
 
-    echo -n "The Guy: [$(gitpushy-committer)]"
+    echo "Author: [$(gitpushy-committer)]"
 
     return 0
 
@@ -330,7 +330,7 @@ gitpushy-init() {
 }
 
 gitpushy-committer() {
-    git log -1|grep -Po "(?<=Author:\s).*(?=\s*\<)"
+    git log -1|grep -Po "(?<=Author:\s).*(?=\s+\<)"
 }
 
 gitpushy-server-ip() {
