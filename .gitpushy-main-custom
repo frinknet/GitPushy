@@ -1,16 +1,7 @@
 #!/bin/bash
 
-DOMAIN="x042.com"
-SERVERS=(spielberg lucas)
 PUSHY_PORT=5288
 
 gitpushy-show gitpushy-common >$HOME/.gitolite/hooks/common/gitpushy-common
 
-for SERVER in $SERVERS; do
-    if [ $PUSHY_SERVER != $SERVER ]; then
-        echo "Updating GitPushy on $SERVER"
-
-        git remote add $SERVER ssh://$PUSHY_USER@$SERVER.$DOMAIN:$PUSHY_PORT/$PUSHY_REPO
-        git push $SERVER $PUSHY_BRANCH
-    fi
-done
+gitpushy-push-replicate spielberg.x042.com lucas.x042.com
