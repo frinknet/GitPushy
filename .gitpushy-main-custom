@@ -6,4 +6,4 @@ echo "GitPushy - Updating gitolite hook on $PUSHY_SERVER"
 
 gitpushy-show gitpushy-common >$HOME/.gitolite/hooks/common/gitpushy-common
 
-gitpushy-push-replicate spielberg.x042.com lucas.x042.com
+gitpushy-push-replicate lucas.x042.com
