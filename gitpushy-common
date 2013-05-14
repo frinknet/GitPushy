@@ -279,7 +279,7 @@ gitpushy-push-replicate() {
                 echo "Cannot resolve merge conficts with remote $1 $PUSHY_BRANCH"
             fi
 
-            git checkout $PUSHY_BRANCH >/dev/null
+            git checkout $PUSHY_BRANCH 1>&2 2>/dev/null
         fi
     done
 }
