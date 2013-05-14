@@ -345,7 +345,6 @@ gitpushy-in-array() {
     local x
 
     for x in "${@:2}"; do
-        echo "$x = $1"
         [ "$x" = "$1" ] && return 0
     done
 
