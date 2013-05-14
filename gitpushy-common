@@ -263,14 +263,13 @@ gitpushy-push-replicate() {
             echo "GitPushy - Pushing commit to remote $1"
 
             git remote add $1 ssh://$PUSHY_USER@$1:$PUSHY_PORT/$PUSHY_REPO
-            git checkout -b $1 2>&1 1>/dev/null
+            git checkout -b $1 1>&2 2>/dev/null
             git fetch $1 1>&2 2>/dev/null
 
-            echo "Merging remote $1"
             if [ $? != 0 ]; then
                 echo "GitPushy - Failed to fetch from ssh://$PUSHY_USER@$1:$PUSHY_PORT/$PUSHY_REPO"
-            elif git merge --no-commit $1/$PUSHY_BRANCH $1 2>&1 1>/dev/null; then
-                git commit --author="GitPushy <$PUSHY_USER@$PUSHY_SERVER>" --allow-empty -am "Auto-merged from $1 on $PUSHY_SERVER" 2>&1 1>/dev/null
+            elif git merge --no-commit $1/$PUSHY_BRANCH $1 1>&2 2>/dev/null; then
+                git commit --author="GitPushy <$PUSHY_USER@$PUSHY_SERVER>" --allow-empty -am "Auto-merged from $1 on $PUSHY_SERVER" 1>&2 2>/dev/null
                 git push $1 $1:$PUSHY_BRANCH
 
                 if [ $? = 0 ]; then
