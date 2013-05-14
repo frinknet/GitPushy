@@ -263,7 +263,7 @@ gitpushy-push-replicate() {
 
             git remote add $1 ssh://$PUSHY_USER@$1:$PUSHY_PORT/$PUSHY_REPO
             git checkout -b $1 2>&1 1>/dev/null
-            git fetch $1 2>&1 1>/dev/null
+            git fetch $1 1>&2 2>/dev/null
 
             echo "Merging remote $1"
             if [ $? != 0 ]; then
