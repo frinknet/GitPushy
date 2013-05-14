@@ -257,22 +257,20 @@ gitpushy-push-replicate() {
         if gitpushy-server-is-local $SERVER; then
             continue
         elif git status 2>/dev/null 1>/dev/null; then
-            echo "GitPushy - Pushing commit to remote $1"
-
             git remote add $1 ssh://$PUSHY_USER@$1:$PUSHY_PORT/$PUSHY_REPO
             git checkout -b $1 1>/dev/null 2>/dev/null
             git fetch $1 1>/dev/null 2>/dev/null
 
             if [ $? != 0 ]; then
-                echo "GitPushy - Failed to fetch from ssh://$PUSHY_USER@$1:$PUSHY_PORT/$PUSHY_REPO"
+                echo "GitPushy - Failed to syncronize with ssh://$PUSHY_USER@$1:$PUSHY_PORT/$PUSHY_REPO"
             elif git merge --no-commit $1/$PUSHY_BRANCH $1 1>/dev/null 2>/dev/null; then
                 git commit --author="GitPushy <$PUSHY_USER@$PUSHY_SERVER>" --allow-empty -am "Auto-merged from $1 on $PUSHY_SERVER" 1>/dev/null 2>/dev/null
                 git push $1 $1:$PUSHY_BRANCH 1>/dev/null 2>/dev/null
 
                 if [ $? = 0 ]; then
-                    echo "GitPushy - Successfully pushed to remote $1"
+                    echo "GitPushy - Successfully syncronized ssh://$PUSHY_USER@$1:$PUSHY_PORT/$PUSHY_REPO"
                 else
-                    echo "GitPushy - Failed to push to remote $1 with status $?"
+                    echo "GitPushy - Failed syncronize with ssh://$PUSHY_USER@$1:$PUSHY_PORT/$PUSHY_REPO"
                 fi
             else
                 git merge --abort >/dev/null
