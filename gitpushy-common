@@ -259,10 +259,14 @@ gitpushy-push-replicate() {
         elif git status 2>&1 1>/dev/null; then
             echo "GitPushy - Pushing commit to remote $1"
 
+            echo "Adding remote $1"
             git remote add $1 ssh://$PUSHY_USER@$1:$PUSHY_PORT/$PUSHY_REPO
+            echo "Checking out remote $1"
             git checkout -b $1
+            echo "Fetching remote $1"
             git fetch $1
 
+            echo "Merging remote $1"
             if git merge --no-commit $1/$PUSHY_BRANCH; then
                 git commit --allow-empty -am "GitPushy Server merged $1 on $PUSHY_SERVER"
                 git push $1 $PUSHY_BRANCH
