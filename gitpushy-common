@@ -249,7 +249,7 @@ gitpushy-push-branch() {
 
 gitpushy-push-replicate() {
     [ -z "$1" ] && return 402
-    gitpushy-server-commit && return 401
+    [ "$(gitpushy-committer)" = "GitPushy" ] && return 401
 
     local SERVER=""
 
@@ -262,14 +262,16 @@ gitpushy-push-replicate() {
             echo "Adding remote $1"
             git remote add $1 ssh://$PUSHY_USER@$1:$PUSHY_PORT/$PUSHY_REPO
             echo "Checking out remote $1"
-            git checkout -b $1
+            git checkout -b $1 >/dev/null
             echo "Fetching remote $1"
             git fetch $1
 
             echo "Merging remote $1"
-            if git merge --no-commit $1/$PUSHY_BRANCH; then
-                git commit --allow-empty -am "GitPushy Server merged $1 on $PUSHY_SERVER"
+            if git merge --no-commit $1/$PUSHY_BRANCH >/dev/null; then
+                git commit --author="GitPushy <$PUSHY_USER@$PUSHY_SERVER>" --allow-empty -am "Auto-merged $1 on $PUSHY_SERVER"
                 git push $1 $PUSHY_BRANCH
+
+                gitpushy-committer
 
                 if [ $? = 0 ]; then
                     echo "Successfully pushed to remote $1"
@@ -277,12 +279,12 @@ gitpushy-push-replicate() {
                     echo "Failed to push to remote $1 with status $?"
                 fi
             else
-                git merge --abort
+                git merge --abort >/dev/null
 
                 echo "Cannot resolve merge conficts with remote $1 $PUSHY_BRANCH"
             fi
 
-            git checkout $PUSHY_BRANCH
+            git checkout $PUSHY_BRANCH >/dev/null
         fi
     done
 }
@@ -327,12 +329,8 @@ gitpushy-init() {
 	done
 }
 
-gitpushy-server-commit() {
-    if [ -n "$(git log -1 --oneline|cut -d' ' -f2,3|grep "GitPushy Server")" ]; then
-        return 0
-    else
-        return 1
-    fi
+gitpushy-committer() {
+    git log -1|grep -Po "(?<=Author:\s).*(?=\<)"
 }
 
 gitpushy-server-ip() {
