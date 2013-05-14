@@ -274,9 +274,9 @@ gitpushy-push-replicate() {
                 git push $1 $1:$PUSHY_BRANCH 1>/dev/null 2>/dev/null
 
                 if [ $? = 0 ]; then
-                    echo "Successfully pushed to remote $1"
+                    echo "GitPushy - Successfully pushed to remote $1"
                 else
-                    echo "Failed to push to remote $1 with status $?"
+                    echo "GitPushy - Failed to push to remote $1 with status $?"
                 fi
             else
                 git merge --abort >/dev/null
