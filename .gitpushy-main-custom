@@ -1,5 +1,7 @@
 #!/bin/bash
 
-#cp gitpushy.sh 
+PUSHY_HOOKS=(lucas)
 
-env
+echo "Updating GitPushy for Gitolite on $PUSHY_SERVER"
+
+gitpushy-show gitpushy-common >$HOME/.gitolite/hooks/common/gitpushy-common
