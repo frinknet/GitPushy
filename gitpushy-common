@@ -197,11 +197,11 @@ gitpushy-hook() {
 
     echo "Status $PUSHY_STATUS"
 	# echo status
-	if [ $PUSHY_STATUS = 0 ]; then
-		echo "GitPushy - Completed $HOOK_RUN"
-	else
-		echo "GitPushy - Exited $HOOK_RUN with status $PUSHY_STATUS"
-	fi
+	#if [ $PUSHY_STATUS = 0 ]; then
+	#	echo "GitPushy - Completed $HOOK_RUN"
+	#else
+	#	echo "GitPushy - Exited $HOOK_RUN with status $PUSHY_STATUS"
+	#fi
 
 	# return pushy status
 	return $PUSHY_STATUS
