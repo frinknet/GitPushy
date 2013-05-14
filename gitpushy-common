@@ -251,6 +251,8 @@ gitpushy-push-replicate() {
     [ -z "$1" ] && return 402
     [ "$(gitpushy-committer)" = "GitPushy" ] && return 401
 
+    gitpushy-committer
+
     local SERVER=""
 
     for SERVER in $@; do
@@ -268,10 +270,8 @@ gitpushy-push-replicate() {
 
             echo "Merging remote $1"
             if git merge --no-commit $1/$PUSHY_BRANCH >/dev/null; then
-                git commit --author="GitPushy <$PUSHY_USER@$PUSHY_SERVER>" --allow-empty -am "Auto-merged $1 on $PUSHY_SERVER"
+                git commit --author="GitPushy <$PUSHY_USER@$PUSHY_SERVER>" --allow-empty -am "Auto-merged from $1 on $PUSHY_SERVER" 2>&1 >/dev/null
                 git push $1 $PUSHY_BRANCH
-
-                gitpushy-committer
 
                 if [ $? = 0 ]; then
                     echo "Successfully pushed to remote $1"
@@ -330,7 +330,7 @@ gitpushy-init() {
 }
 
 gitpushy-committer() {
-    git log -1|grep -Po "(?<=Author:\s).*(?=\<)"
+    git log -1|grep -Po "(?<=Author:\s).*(?=\s*\<)"
 }
 
 gitpushy-server-ip() {
