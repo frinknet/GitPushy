@@ -249,8 +249,9 @@ gitpushy-push-branch() {
 
 gitpushy-push-replicate() {
     [ -z "$1" ] && return 402
-    [ "$(gitpushy-committer)" = "GitPushy" ] && return 401
+    [ $(gitpushy-committer) = "GitPushy" ] && return 401
 
+    echo -n "The Guy: "
     gitpushy-committer
 
     local SERVER=""
