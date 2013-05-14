@@ -195,6 +195,7 @@ gitpushy-hook() {
 		PUSHY_STATUS=500
 	fi
 
+    echo "Status $PUSHY_STATUS"
 	# echo status
 	if [ $PUSHY_STATUS = 0 ]; then
 		echo "GitPushy - Completed $HOOK_RUN"
