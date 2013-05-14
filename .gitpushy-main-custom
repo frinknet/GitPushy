@@ -2,7 +2,7 @@
 
 PUSHY_PORT=5288
 
-echo "GitPushy - Updating Gitolite on $PUSHY_SERVER"
+echo "GitPushy - Updating gitolite hook on $PUSHY_SERVER"
 
 gitpushy-show gitpushy-common >$HOME/.gitolite/hooks/common/gitpushy-common
 
