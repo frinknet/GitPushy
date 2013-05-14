@@ -253,6 +253,8 @@ gitpushy-push-replicate() {
 
     echo "Author: [$(gitpushy-committer)]"
 
+    return 0
+
     local SERVER=""
 
     for SERVER in $@; do
