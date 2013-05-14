@@ -248,13 +248,13 @@ gitpushy-push-branch() {
 }
 
 gitpushy-push-replicate() {
+    return 0
     [ -z "$1" ] && return 402
     [ $(gitpushy-committer) = "GitPushy" ] && return 401
 
     echo -n "The Guy: "
     gitpushy-committer
 
-    return 0
 
     local SERVER=""
 
