@@ -1,0 +1,6 @@
+#!/bin/bash
+
+STDIN=$(cat -)
+
+source hooks/gitpushy-common
+echo "$STDIN" | gitpushy-init $GL_REPO
