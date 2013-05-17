@@ -92,5 +92,34 @@ Git Pushy comes with a short list of configuration variables to make it easy to 
 GitPushy Scripting
 --------
 
+* __gitpushy-hook {hook}__ - Call another GitPushy hook. This should only really be used inside of a gitpushy-hook-custom script since the usual way to call extra hooks is through the _PUSHY_HOOKS_ variable. Calling this will wipe the _PUSHY_BUILD_DIR_ and start again. It is therefore preferable to call a section of the hook rather than the whole hook.
+* __gitpushy-build {hook}__ - Calls the build section of a GitPushy hook. This can be used in custom hooks or when a conditional build process may be necessary. For example:
 
-Each replication is put in its own branch with the same name as the server who it pushed and replicated from. Note that replication may trigger gitpushy on the remote server if GitPushy is installed there too.
+        [ condition ] && gitpushy-build otherhook
+
+* __gitpushy-stage {hook}__ - Calls the stage section of a GitPushy hook. This is really only useful when called from within a custom hook where it is necessary to change the call order of the sections within a custom hook:
+
+        gitpushy-stage $PUSHY_HOOK && gitpushy-stage otherhook
+
+* __gitpushy-deploy {hook}__ - Calls the deploy section of a GitPushy hook. This is really only useful when called from within a custom hook where it is necessary to change the call order of the sections within a custom hook.
+
+        gitpushy-deploy $PUSHY_HOOK && gitpushy-deploy otherhook
+
+* __gitpushy-push-branch {branch}__ - Calls for the GitPushy deployment of the specified branch. This is useful where commits to one branch control deployments of another. This is used internally to deploy the commited branches like normal. This will trigger a fresh deployment process of the branch. If you call gitpushy-push-branch $PUSHY_BRANCH without changing the variable from your current branch you will end up in an endless loop.
+
+* __gitpushy-push-replicate {server} {server ...}__ - This is ment to be run in the build stage where each replication is put in its own branch with the same name as the server who it pushed to and replicated from. Note that replication may trigger gitpushy on the remote server if GitPushy is installed there too. You can prevent continous replication by testing:
+
+        [ "$(gitpushy-committer)" = "GitPushy" ] && return 0
+
+* __gitpushy-show {file} {file}__ - This works like cat inside of gitpushy allowing you to create variables from the contents of files. This is used internally by GitPushy to check for hooks. An empty string will be returned if the file does not exist.
+* __gitpushy-committer__ - Show the last comitter for the current branch.
+* __gitpushy-branch-name__ - Show the branch name of the current selected branch. This is for cases where multiple branches are used in the $PUSHY_BUILD_DIR to make sure that the right one is selected.
+* __gitpushy-server-ip__ - Show the resoved IP of a server name
+* __gitpushy-local-ips__ - Show a list of IPs that reference the current machine. 
+* __gitpushy-in-array {string} {array}__ - Checks if a certain string is in a specified array.
+* __gitpushy-server-is-local {server}__ - Checks if a server is local or remote. The following code is similar to the code in gitpushy-push-replicate:
+
+        [ gitpushy-server-is-local $SERVER ] && return 0
+
+
+
