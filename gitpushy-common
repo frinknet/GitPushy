@@ -31,22 +31,22 @@ gitpushy-build() {
 	fi
 
 	# prepare pushy build script
-	echo "$PUSHY_ENV" > gitpushy-$PUSHY_HOOK-build.command
-	echo "PUSHY_HOOK='$1'" >> gitpushy-$PUSHY_HOOK-build.command
-	echo "PUSHY_STATUS='$PUSHY_STATUS'" >> gitpushy-$PUSHY_HOOK-build.command
-	echo "cd $PUSHY_BUILD_DIR" >> gitpushy-$PUSHY_HOOK-build.command
-	gitpushy-show .gitpushy-build .gitpushy-$1-build >> gitpushy-$PUSHY_HOOK-build.command
-	echo "$PUSHY_SYNC" >> gitpushy-$PUSHY_HOOK-build.command
-	echo "exit $PUSHY_STATUS" >> gitpushy-$PUSHY_HOOK-build.command
+	echo "$PUSHY_ENV" > gitpushy-$PUSHY_DEPLOYMENT-build.command
+	echo "PUSHY_DEPLOYMENT='$1'" >> gitpushy-$PUSHY_DEPLOYMENT-build.command
+	echo "PUSHY_STATUS='$PUSHY_STATUS'" >> gitpushy-$PUSHY_DEPLOYMENT-build.command
+	echo "cd $PUSHY_BUILD_DIR" >> gitpushy-$PUSHY_DEPLOYMENT-build.command
+	gitpushy-show .gitpushy-build .gitpushy-$1-build >> gitpushy-$PUSHY_DEPLOYMENT-build.command
+	echo "$PUSHY_SYNC" >> gitpushy-$PUSHY_DEPLOYMENT-build.command
+	echo "exit $PUSHY_STATUS" >> gitpushy-$PUSHY_DEPLOYMENT-build.command
 
 	# show commands run if verbosity is set
-	[ $PUSHY_VERBOSE != 0 ] && cat gitpushy-$PUSHY_HOOK-build.command | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-build: {}"
+	[ $PUSHY_VERBOSE != 0 ] && cat gitpushy-$PUSHY_DEPLOYMENT-build.command | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-build: {}"
 
 	# run pushy build srcipts
-	(cat gitpushy-$PUSHY_HOOK-build.command | bash) 1> >(tee gitpushy-$PUSHY_HOOK-build.output) 2> >(tee gitpushy-$PUSHY_HOOK-build.error) | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - hook:gitpushy-$1-build - {}"
+	(cat gitpushy-$PUSHY_DEPLOYMENT-build.command | bash) 1> >(tee gitpushy-$PUSHY_DEPLOYMENT-build.output) 2> >(tee gitpushy-$PUSHY_DEPLOYMENT-build.error) | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - .gitpushy-$1-build - {}"
 	# capture execution status
 	PUSHY_STATUS=${PIPESTATUS[0]}
-	[ -s gitpushy-$PUSHY_HOOK-build.error ] && PUSHY_STATUS=500
+	[ -s gitpushy-$PUSHY_DEPLOYMENT-build.error ] && PUSHY_STATUS=500
 
 	# return pushy status
 	return $PUSHY_STATUS
@@ -59,26 +59,26 @@ gitpushy-stage() {
 	echo "GitPushy - Staging $PUSHY_REPO:$PUSHY_BRANCH at $PUSHY_SERVER:$PUSHY_STAGE_DIR"
 
 	# prepare pushy stage script
-	echo "$PUSHY_ENV" > gitpushy-$PUSHY_HOOK-stage.command
-	echo "PUSHY_HOOK='$1'" >> gitpushy-$PUSHY_HOOK-stage.command
-	echo "PUSHY_STATUS='$PUSHY_STATUS'" >> gitpushy-$PUSHY_HOOK-stage.command
-	echo "cd $PUSHY_STAGE_DIR" >> gitpushy-$PUSHY_HOOK-stage.command
-	gitpushy-show .gitpushy-stage .gitpushy-$1-stage >> gitpushy-$PUSHY_HOOK-stage.command
-	echo "exit $PUSHY_STATUS" >> gitpushy-$PUSHY_HOOK-stage.command
+	echo "$PUSHY_ENV" > gitpushy-$PUSHY_DEPLOYMENT-stage.command
+	echo "PUSHY_DEPLOYMENT='$1'" >> gitpushy-$PUSHY_DEPLOYMENT-stage.command
+	echo "PUSHY_STATUS='$PUSHY_STATUS'" >> gitpushy-$PUSHY_DEPLOYMENT-stage.command
+	echo "cd $PUSHY_STAGE_DIR" >> gitpushy-$PUSHY_DEPLOYMENT-stage.command
+	gitpushy-show .gitpushy-stage .gitpushy-$1-stage >> gitpushy-$PUSHY_DEPLOYMENT-stage.command
+	echo "exit $PUSHY_STATUS" >> gitpushy-$PUSHY_DEPLOYMENT-stage.command
 
 	# show commands run if verbosity is set
-	[ $PUSHY_VERBOSE != 0 ] && cat gitpushy-$PUSHY_HOOK-stage.command | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-stage: {}"
+	[ $PUSHY_VERBOSE != 0 ] && cat gitpushy-$PUSHY_DEPLOYMENT-stage.command | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-stage: {}"
 
 	# run pushy stage scripts
 	if [ $PUSHY_REMOTE = 0 ]; then 
-		(cat gitpushy-$PUSHY_HOOK-stage.command | bash) 1> >(tee gitpushy-$PUSHY_HOOK-stage.output) 2> >(tee gitpushy-$PUSHY_HOOK-stage.error) | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - hook:gitpushy-$1-stage - {}"
+		(cat gitpushy-$PUSHY_DEPLOYMENT-stage.command | bash) 1> >(tee gitpushy-$PUSHY_DEPLOYMENT-stage.output) 2> >(tee gitpushy-$PUSHY_DEPLOYMENT-stage.error) | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - .gitpushy-$1-stage - {}"
 	else
-		(cat gitpushy-$PUSHY_HOOK-stage.command | ssh -p $PUSHY_PORT $PUSHY_USER@$PUSHY_SERVER bash) 1> >(tee gitpushy-$PUSHY_HOOK-stage.output) 2> >(tee gitpushy-$PUSHY_HOOK-stage.error) | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - hook:gitpushy-$1-stage - {}"
+		(cat gitpushy-$PUSHY_DEPLOYMENT-stage.command | ssh -p $PUSHY_PORT $PUSHY_USER@$PUSHY_SERVER bash) 1> >(tee gitpushy-$PUSHY_DEPLOYMENT-stage.output) 2> >(tee gitpushy-$PUSHY_DEPLOYMENT-stage.error) | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - .gitpushy-$1-stage - {}"
 	fi
 
 	# capture exit status
 	PUSHY_STATUS=${PIPESTATUS[0]}
-	[ -s gitpushy-$PUSHY_HOOK-stage.errlog ] && PUSHY_STATUS=500
+	[ -s gitpushy-$PUSHY_DEPLOYMENT-stage.errlog ] && PUSHY_STATUS=500
 
 	# return pushy status
 	return $PUSHY_STATUS
@@ -91,51 +91,51 @@ gitpushy-deploy() {
 	echo "GitPushy - Deploying $PUSHY_REPO:$PUSHY_BRANCH in $PUSHY_SERVER:$PUSHY_DEPLOY_DIR"
 
 	#prepare pushy deploy script
-	echo "$PUSHY_ENV" > gitpushy-$PUSHY_HOOK-deploy.command
-	echo "PUSHY_HOOK='$1'" >> gitpushy-$PUSHY_HOOK-deploy.command
-	echo "PUSHY_STATUS='$PUSHY_STATUS'" >> gitpushy-$PUSHY_HOOK-deploy.command
-	echo "rm -rf $PUSHY_DEPLOY_DIR" >> gitpushy-$PUSHY_HOOK-deploy.command
-	echo "rsync -a --exclude='gitpushy*' $PUSHY_STAGE_DIR $PUSHY_DEPLOY_DIR" >> gitpushy-$PUSHY_HOOK-deploy.command
-	echo "cd $PUSHY_DEPLOY_DIR" >> gitpushy-$PUSHY_HOOK-deploy.command
-	gitpushy-show .gitpushy-deploy .gitpushy-$1-deploy >> gitpushy-$PUSHY_HOOK-deploy.command
-	echo "exit $PUSHY_STATUS" >> gitpushy-$PUSHY_HOOK-deploy.command
+	echo "$PUSHY_ENV" > gitpushy-$PUSHY_DEPLOYMENT-deploy.command
+	echo "PUSHY_DEPLOYMENT='$1'" >> gitpushy-$PUSHY_DEPLOYMENT-deploy.command
+	echo "PUSHY_STATUS='$PUSHY_STATUS'" >> gitpushy-$PUSHY_DEPLOYMENT-deploy.command
+	echo "rm -rf $PUSHY_DEPLOY_DIR" >> gitpushy-$PUSHY_DEPLOYMENT-deploy.command
+	echo "rsync -a --exclude='gitpushy*' $PUSHY_STAGE_DIR $PUSHY_DEPLOY_DIR" >> gitpushy-$PUSHY_DEPLOYMENT-deploy.command
+	echo "cd $PUSHY_DEPLOY_DIR" >> gitpushy-$PUSHY_DEPLOYMENT-deploy.command
+	gitpushy-show .gitpushy-deploy .gitpushy-$1-deploy >> gitpushy-$PUSHY_DEPLOYMENT-deploy.command
+	echo "exit $PUSHY_STATUS" >> gitpushy-$PUSHY_DEPLOYMENT-deploy.command
 
 	# show commands run if verbosity is set
-	[ $PUSHY_VERBOSE != 0 ] && cat gitpushy-$PUSHY_HOOK-deploy.command | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-stage: {}"
+	[ $PUSHY_VERBOSE != 0 ] && cat gitpushy-$PUSHY_DEPLOYMENT-deploy.command | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-stage: {}"
 
 	# run pushy deploy scripts
 	if [ $PUSHY_REMOTE = 0 ]; then 
-		(cat gitpushy-$PUSHY_HOOK-deploy.command | bash) 1> >(tee gitpushy-$PUSHY_HOOK-deploy.output) 2> >(tee gitpushy-$PUSHY_HOOK-deploy.error) | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - hook:gitpushy-$1-deploy - {}"
+		(cat gitpushy-$PUSHY_DEPLOYMENT-deploy.command | bash) 1> >(tee gitpushy-$PUSHY_DEPLOYMENT-deploy.output) 2> >(tee gitpushy-$PUSHY_DEPLOYMENT-deploy.error) | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - .gitpushy-$1-deploy - {}"
 	else
-		(cat gitpushy-$PUSHY_HOOK-deploy.command | ssh -p $PUSHY_PORT $PUSHY_USER@$PUSHY_SERVER bash) 1> >(tee gitpushy-$PUSHY_HOOK-deploy.output) 2> >(tee gitpushy-$PUSHY_HOOK-deploy.error) | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - hook:gitpushy-$1-deploy - {}"
+		(cat gitpushy-$PUSHY_DEPLOYMENT-deploy.command | ssh -p $PUSHY_PORT $PUSHY_USER@$PUSHY_SERVER bash) 1> >(tee gitpushy-$PUSHY_DEPLOYMENT-deploy.output) 2> >(tee gitpushy-$PUSHY_DEPLOYMENT-deploy.error) | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - .gitpushy-$1-deploy - {}"
 	fi
 
 	# capture exit status
 	PUSHY_STATUS=${PIPESTATUS[0]}
-	[ -s gitpushy-$PUSHY_HOOK-deploy.error ] && PUSHY_STATUS=500
+	[ -s gitpushy-$PUSHY_DEPLOYMENT-deploy.error ] && PUSHY_STATUS=500
 
 	# return pushy status
 	return $PUSHY_STATUS
 }
 
-gitpushy-hook() {
+gitpushy-trigger() {
 	# check pushy status
 	[ $PUSHY_STATUS != 0 ] && return $PUSHY_STATUS 
 
 	# prepare pushy config script
 	PUSHY_CONFIG="$(gitpushy-show .gitpushy-config .gitpushy-$1-config)"
 	PUSHY_CUSTOM="$(gitpushy-show .gitpushy-$1-custom)"
-	PUSHY_HOOK="$1"
+	PUSHY_DEPLOYMENT="$1"
 
-	# return 404 if hook doesnt exist
+	# return 404 if script doesnt exist
 	[ -z "$PUSHY_CONFIG$PUSHY_CUSTOM" ] && return 404
 
-	# run config and base hook
-	eval "$PUSHY_CONFIG" 1> >(tee gitpushy-$PUSHY_HOOK-config.output) 2> >(tee gitpushy-$PUSHY_HOOK-config.error)> >(tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$PUSHY_HOOK-config: {}")
+	# run config scripts for deployment
+	eval "$PUSHY_CONFIG" 1> >(tee gitpushy-$PUSHY_DEPLOYMENT-config.output) 2> >(tee gitpushy-$PUSHY_DEPLOYMENT-config.error)> >(tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$PUSHY_DEPLOYMENT-config: {}")
 
 	# capture exit status
 	PUSHY_STATUS=$?
-	[ -s gitpushy-$PUSHY_HOOK-config.error ] && PUSHY_STATUS=500
+	[ -s gitpushy-$PUSHY_DEPLOYMENT-config.error ] && PUSHY_STATUS=500
 		
 	# set pushy remote vs local
 	[ "$PUSHY_SERVER" != "$(hostname)" ] && PUSHY_REMOTE=1
@@ -155,41 +155,41 @@ gitpushy-hook() {
 	"
 
 	# show commands run if verbosity is set
-	[ $PUSHY_VERBOSE != 0 ] && echo "$PUSHY_CONFIG" | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$PUSHY_HOOK-config: - {}"
+	[ $PUSHY_VERBOSE != 0 ] && echo "$PUSHY_CONFIG" | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$PUSHY_DEPLOYMENT-config: - {}"
 
 	# show environment if verbosity is set
 	[ $PUSHY_VERBOSE != 0 ] && echo "$PUSHY_ENV" | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-environment - {}"
 
-	# run hook scripts
+	# run deployment scripts
 	if [ $PUSHY_STATUS != 0 ]; then
-		local HOOK_RUN="$PUSHY_HOOK config"
+		local DEPLOYMENT_RUN="$PUSHY_DEPLOYMENT config"
 	elif [ -n "$PUSHY_CUSTOM" ]; then
-		local HOOK_RUN="$PUSHY_HOOK custom hook"
+		local DEPLOYMENT_RUN="$PUSHY_DEPLOYMENT custom script"
 
-		echo "GitPushy - Calling $HOOK_RUN"
+		echo "GitPushy - Calling $DEPLOYMENT_RUN"
 		echo "----------"
 
 		# show commands run if verbosity is set
-		[ $PUSHY_VERBOSE != 0 ] && echo "$PUSHY_CUSTOM" | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$PUSHY_HOOK-custom: {}"
+		[ $PUSHY_VERBOSE != 0 ] && echo "$PUSHY_CUSTOM" | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$PUSHY_DEPLOYMENT-custom: {}"
 
 		# run custom script
-		(eval "$PUSHY_CUSTOM" 1> >(tee gitpushy-$PUSHY_HOOK-custom.output) 2> >(tee gitpushy-$PUSHY_HOOK-custom.error))
+		(eval "$PUSHY_CUSTOM" 1> >(tee gitpushy-$PUSHY_DEPLOYMENT-custom.output) 2> >(tee gitpushy-$PUSHY_DEPLOYMENT-custom.error))
 		
 		# capture exit status
 		PUSHY_STATUS=$?
-		[ -s gitpushy-$PUSHY_HOOK-custom.errlog ] && PUSHY_STATUS=500
+		[ -s gitpushy-$PUSHY_DEPLOYMENT-custom.errlog ] && PUSHY_STATUS=500
 
 		echo "----------"
 	elif [ -n "$PUSHY_DEPLOY_DIR" ]; then
-		local HOOK_RUN="$PUSHY_HOOK common hooks"
+		local DEPLOYMENT_RUN="$PUSHY_DEPLOYMENT deployment"
 
-		echo "GitPushy - Calling $HOOK_RUN"
+		echo "GitPushy - Calling $DEPLOYMENT_RUN"
 
-		gitpushy-build $PUSHY_HOOK
-		gitpushy-stage $PUSHY_HOOK
-		gitpushy-deploy $PUSHY_HOOK
+		gitpushy-build $PUSHY_DEPLOYMENT
+		gitpushy-stage $PUSHY_DEPLOYMENT
+		gitpushy-deploy $PUSHY_DEPLOYMENT
 	else
-		local HOOK_RUN="$PUSHY_HOOK config"
+		local DEPLOYMENT_RUN="$PUSHY_DEPLOYMENT config"
 		echo "GitPushy - Invalid config no deploy directory"
 
 		PUSHY_STATUS=500
@@ -197,9 +197,9 @@ gitpushy-hook() {
 
 	# echo status
 	if [ $PUSHY_STATUS = 0 ]; then
-		echo "GitPushy - Completed $HOOK_RUN"
+		echo "GitPushy - Completed $DEPLOYMENT_RUN"
 	else
-		echo "GitPushy - Exited $HOOK_RUN with status $PUSHY_STATUS"
+		echo "GitPushy - Exited $DEPLOYMENT_RUN with status $PUSHY_STATUS"
 	fi
 
 	# return pushy status
@@ -216,8 +216,8 @@ gitpushy-push-branch() {
 	export PUSHY_REMOTE=0
 	export PUSHY_BRANCH="$1"
 	export PUSHY_SERVER=$(hostname)
-	export PUSHY_HOOKS=()
-	export PUSHY_HOOK=""
+	export PUSHY_TRIGGERS=()
+	export PUSHY_DEPLOYMENT=""
 	export PUSHY_PORT=22
 	export PUSHY_USER=$(whoami)
 	export PUSHY_REPO="$PUSHY_REPO"
@@ -225,22 +225,16 @@ gitpushy-push-branch() {
 	# check if this branch has gitpushy data
 	[ -z "$(gitpushy-show .gitpushy-config .gitpushy-main .gitpushy-main-custom)" ] && return 0
 
-	# make a clean local clone
-	(rm -rf $PUSHY_BUILD_DIR; git clone -b $PUSHY_BRANCH . $PUSHY_BUILD_DIR) >/dev/null
-
-	# switch to clone
-	cd $PUSHY_BUILD_DIR
-
 	# reorient git
 	local REPO_DIR=$GIT_DIR
 	export GIT_DIR=$PUSHY_BUILD_DIR/.git
 
-	# run main hooks
-	gitpushy-hook main
+	# run main deployment
+	gitpushy-trigger main
 
-	# loop through addtional hooks
-	[ $PUSHY_STATUS = 0 ] && for PUSHY_HOOK in ${PUSHY_HOOKS[@]}; do
-		gitpushy-hook $PUSHY_HOOK
+	# loop through addtional triggers
+	[ $PUSHY_STATUS = 0 ] && for PUSHY_DEPLOYMENT in ${PUSHY_TRIGGERS[@]}; do
+		gitpushy-trigger $PUSHY_DEPLOYMENT
 	done
 
 	# reset git orientation
@@ -312,13 +306,19 @@ gitpushy-init() {
 	IFS=$OFS;
 	
 	for PUSHY_BRANCH in ${PUSHY_BRANCHES[@]}; do
+	    # make a clean local clone
+	    (rm -rf $PUSHY_BUILD_DIR; git clone -b $PUSHY_BRANCH . $PUSHY_BUILD_DIR) >/dev/null
+
+	    # switch to clone
+	    cd $PUSHY_BUILD_DIR
+
 		if [ -f hooks/pushy-$PUSHY_BRANCH-branch ]; then
-			echo "GitPushy - Custom receive hook: pushy-$PUSHY_BRANCH-branch"
-			source hooks/pushy-$PUSHY_BRANCH-branch 
+			echo "GitPushy - Custom GitPushy Hook: pushy-$PUSHY_BRANCH-branch"
+			source hooks/pushy-$PUSHY_BRANCH-branch
 		elif [ $PUSHY_BRANCH != "any" ]; then
 			[ -z "$PUSHY_BRANCH" ] && echo "BRANCH was not passed to pushy-deploy" && exit 1
 			[ ! -f refs/heads/$PUSHY_BRANCH ] && exit 1
-			
+
 			gitpushy-push-branch $PUSHY_BRANCH
 		fi
 	done
