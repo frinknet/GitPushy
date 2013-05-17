@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -x
-
 # Git Pushy Simple Build Deployment Framework
 #
 # @link http://gitpushy.com
