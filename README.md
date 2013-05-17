@@ -11,9 +11,9 @@ GitPushy works as a trigger from git's *post_receive* hook. It uses this to trig
 A hook is devided into four parts: _config_, _build_, _stage_, _deploy_ - each of these sections are further devided into a general and a specific part of the script. In adition to these four stages a fifth _custom_ stage can be added in place of the _build_, _stage_ and _deploy_ sections to aid in complex deployment proceedures.
 
 
-Anatomy of the Main Hook
+Anatomy of a Pushy Hook
 --------
-When GitPushy is triggered everything starts with the main hook. The following files are run if they exist
+When GitPushy is triggered everything starts with the main hook. The following files are run if they exist:
 
     .gitpushy-config
     .gitpushy-main-config
@@ -25,7 +25,11 @@ When GitPushy is triggered everything starts with the main hook. The following f
     .gitpushy-deploy
     .gitpushy-main-deploy
 
-As you can see there are both general and specific stages that can be run for each hook.
+If the config file specifies more hooks in the _PUSHY_HOOKS_ variable these will be run after the main hook has finished it's run.
+
+There are both general and hook-specific parts to each stage. The general part of the stage is always run first followed by the mor specific hook level code.
+
+NOTE: If the file .gitpushy-main-custom exists none of the other stages are called unless the custom script calls them specifically.
 
 
 GitPushy Configuration Variables
