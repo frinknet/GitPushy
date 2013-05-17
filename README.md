@@ -8,7 +8,29 @@ GitPushy Hooks
 --------
 GitPushy works as a trigger from git's *post_receive* hook. It uses this to trigger it's own hooks and build, stage and deploy source code to a working application environment.
 
-A hook is devided into four parts: _config_, _build_, _stage_, _deploy_ - each of these sections are further devided into a general and a specific part of the script. In adition to these four stages a fifth _custom_ stage can be added in place of the _build_, _stage_ and _deploy_ sections to aid in complex deployment proceedures.
+A hook is devided into four section: _config_, _build_, _stage_, _deploy_ - each of these sections are further devided into a general and a specific part of the script. In adition to these four stages a fifth _custom_ stage can be added in place of the _build_, _stage_ and _deploy_ sections to aid in complex deployment proceedures.
+
+
+GitPushy Hook Config Section
+--------
+The Config stage is intended to set key variables necesary for making a pushy deployment possible. The most simple version of this section consists of setting the _PUSHY_DEPLOY_DIR_ variable to the place where your final code will reside. Without specyfying this directory nothing will be done to deploy unless you have a custom section for your GitPushy hook.
+
+
+GitPushy Hook Build Section
+--------
+
+
+GitPushy Hook Stage Section
+--------
+
+
+GitPushy Hook Deploy Section
+--------
+
+
+GitPushy Hook Custom Section
+--------
+
 
 
 Anatomy of a Pushy Hook
