@@ -35,7 +35,9 @@ gitpushy-build() {
 	echo "PUSHY_DEPLOYMENT='$1'" >> gitpushy-$PUSHY_DEPLOYMENT-build.command
 	echo "PUSHY_STATUS='$PUSHY_STATUS'" >> gitpushy-$PUSHY_DEPLOYMENT-build.command
 	echo "cd $PUSHY_BUILD_DIR" >> gitpushy-$PUSHY_DEPLOYMENT-build.command
+
 	gitpushy-show .gitpushy-build .gitpushy-$1-build >> gitpushy-$PUSHY_DEPLOYMENT-build.command
+
 	echo "$PUSHY_SYNC" >> gitpushy-$PUSHY_DEPLOYMENT-build.command
 	echo "exit $PUSHY_STATUS" >> gitpushy-$PUSHY_DEPLOYMENT-build.command
 
@@ -44,8 +46,10 @@ gitpushy-build() {
 
 	# run pushy build srcipts
 	(cat gitpushy-$PUSHY_DEPLOYMENT-build.command | bash) 1> >(tee gitpushy-$PUSHY_DEPLOYMENT-build.output) 2> >(tee gitpushy-$PUSHY_DEPLOYMENT-build.error) | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - .gitpushy-$1-build - {}"
+
 	# capture execution status
 	PUSHY_STATUS=${PIPESTATUS[0]}
+
 	[ -s gitpushy-$PUSHY_DEPLOYMENT-build.error ] && PUSHY_STATUS=500
 
 	# return pushy status
@@ -136,10 +140,8 @@ gitpushy-trigger() {
 	# capture exit status
 	PUSHY_STATUS=$?
 	[ -s gitpushy-$PUSHY_DEPLOYMENT-config.error ] && PUSHY_STATUS=500
-		
 	# set pushy remote vs local
 	[ "$PUSHY_SERVER" != "$(hostname)" ] && PUSHY_REMOTE=1
-	
 	# setup pushy environment variables
 	export PUSHY_ENV="
 	PUSHY_DEPLOY_DIR='$PUSHY_DEPLOY_DIR/'
@@ -174,7 +176,7 @@ gitpushy-trigger() {
 
 		# run custom script
 		(eval "$PUSHY_CUSTOM" 1> >(tee gitpushy-$PUSHY_DEPLOYMENT-custom.output) 2> >(tee gitpushy-$PUSHY_DEPLOYMENT-custom.error))
-		
+
 		# capture exit status
 		PUSHY_STATUS=$?
 		[ -s gitpushy-$PUSHY_DEPLOYMENT-custom.errlog ] && PUSHY_STATUS=500
@@ -190,6 +192,7 @@ gitpushy-trigger() {
 		gitpushy-deploy $PUSHY_DEPLOYMENT
 	else
 		local DEPLOYMENT_RUN="$PUSHY_DEPLOYMENT config"
+
 		echo "GitPushy - Invalid config no deploy directory"
 
 		PUSHY_STATUS=500
@@ -215,7 +218,7 @@ gitpushy-push-branch() {
 	export PUSHY_STATUS=0
 	export PUSHY_REMOTE=0
 	export PUSHY_BRANCH="$1"
-	export PUSHY_SERVER=$(hostname)
+	export PUSHY_SERVER="$HOSTNAME"
 	export PUSHY_TRIGGERS=()
 	export PUSHY_DEPLOYMENT=""
 	export PUSHY_PORT=22
@@ -251,7 +254,8 @@ gitpushy-push-replicate() {
         if gitpushy-server-is-local $SERVER; then
             continue
         elif git status 1>/dev/null 2>/dev/null; then
-                echo "GitPushy - Syncronizing $1"
+            echo "GitPushy - Syncronizing $1"
+
             git remote add $1 ssh://$PUSHY_USER@$1:$PUSHY_PORT/$PUSHY_REPO
             git checkout -b $1 1>/dev/null 2>/dev/null
             git fetch $1 1>/dev/null 2>/dev/null
@@ -286,8 +290,9 @@ gitpushy-show() {
 }
 
 gitpushy-init() {
-	PUSHY_REPO="$1"
-	PUSHY_BRANCHES=()
+	export PUSHY_REPO="$1"
+	export PUSHY_BRANCH=""
+	export PUSHY_BRANCHES=()
 
 	[ -z "$PUSHY_REPO" ] && if [ $(git rev-parse --is-bare-repository) = true ]; then
 		PUSHY_REPO=$(basename "$PWD")
@@ -295,7 +300,7 @@ gitpushy-init() {
 	else
 		PUSHY_REPO=$(basename $(readlink -nf "$PWD"/..))
 	fi
-	
+
 	while read oldrev newrev refname; do
 		PUSHY_BRANCHES+=($(git rev-parse --symbolic --abbrev-ref $refname))
 	done
@@ -304,16 +309,29 @@ gitpushy-init() {
 	IFS=$'\n'
 	PUSHY_BRANCHES=($(sort -u <<<"${PUSHY_BRANCHES[@]}"))
 	IFS=$OFS;
-	
+
 	for PUSHY_BRANCH in ${PUSHY_BRANCHES[@]}; do
+	    # export pushy variables to main environment
+	    export PUSHY_DEPLOY_DIR=""
+	    export PUSHY_BUILD_DIR="$PWD/pushy-$PUSHY_BRANCH-build/"
+	    export PUSHY_STAGE_DIR="$HOME/pushy-staging-$PUSHY_REPO-$PUSHY_BRANCH/"
+	    export PUSHY_VERBOSE=0
+	    export PUSHY_STATUS=0
+	    export PUSHY_REMOTE=0
+	    export PUSHY_SERVER="$HOSTNAME"
+	    export PUSHY_TRIGGERS=()
+	    export PUSHY_DEPLOYMENT=""
+	    export PUSHY_PORT=22
+	    export PUSHY_USER=$(whoami)
+
 	    # make a clean local clone
 	    (rm -rf $PUSHY_BUILD_DIR; git clone -b $PUSHY_BRANCH . $PUSHY_BUILD_DIR) >/dev/null
 
 	    # switch to clone
 	    cd $PUSHY_BUILD_DIR
-
 		if [ -f hooks/pushy-$PUSHY_BRANCH-branch ]; then
 			echo "GitPushy - Custom GitPushy Hook: pushy-$PUSHY_BRANCH-branch"
+
 			source hooks/pushy-$PUSHY_BRANCH-branch
 		elif [ $PUSHY_BRANCH != "any" ]; then
 			[ -z "$PUSHY_BRANCH" ] && echo "BRANCH was not passed to pushy-deploy" && exit 1
