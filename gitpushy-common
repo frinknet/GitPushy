@@ -285,6 +285,8 @@ gitpushy-push-replicate() {
 }
 
 gitpushy-show() {
+    [ -z "$PUSHY_BRANCH" ] && PUSHY_BRANCH=$(gitpushy-branch-name)
+
 	# cat files in repo
 	grep -v "^\s*$" <(for file in $@; do
 		git show heads/$PUSHY_BRANCH:$file 2>/dev/null
