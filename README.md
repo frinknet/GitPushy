@@ -27,16 +27,16 @@ When GitPushy is triggered everything starts with the main hook. The following f
 
 NOTE: If the file .gitpushy-main-custom exists none of the other stages are called unless the custom script calls them specifically.
 
-There are both general and hook-specific parts to each stage. The general part of the stage is always run first followed by the mor specific hook level code. If the config section specifies hooks in the _PUSHY_HOOKS_ variable these will be run after the main hook has finished it's execution.
+There are both general and hook-specific parts to each stage. The general part of the stage is always run first followed by the mor specific hook level code. If the config section specifies hooks in the __$PUSHY_HOOKS__ variable these will be run after the main hook has finished it's execution.
 
 GitPushy Hook Config Section
 --------
-The Config stage is intended to set key variables necesary for making a pushy deployment possible. The most simple version of this section consists of setting the _PUSHY_DEPLOY_DIR_ variable to the place where your final code will reside. Without specyfying this directory nothing will be done to deploy unless you have a custom section for your GitPushy hook. There are many other variables that can be set in this section. See GitPushy Config Variables for mor info.
+The Config stage is intended to set key variables necesary for making a pushy deployment possible. The most simple version of this section consists of setting the __$PUSHY_DEPLOY_DIR__ variable to the place where your final code will reside. Without specyfying this directory nothing will be done to deploy unless you have a custom section for your GitPushy hook. There are many other variables that can be set in this section. See GitPushy Config Variables for mor info.
 
 
 GitPushy Hook Build Section
 --------
-In the build section GitPushy creates a clean clone of a git repository and deposits it in the specified _PUSHY_BUILD_DIR_. The clone is set to the branch being deployed to it's latest commits. Then the build hook is run to do any of the heavy lifting necessary in the bundling of code.
+In the build section GitPushy creates a clean clone of a git repository and deposits it in the specified __$PUSHY_BUILD_DIR__. The clone is set to the branch being deployed to it's latest commits. Then the build hook is run to do any of the heavy lifting necessary in the bundling of code.
 
 If this process is rather strenuous and time consuming it may be better to run these detatched from a _.gitpushy-hook-custom_ script to avoid monopolizing the git commit process. See more on GitPushy Hooks Custom Section.
 
@@ -47,14 +47,14 @@ Since the build directory is a valid git clone you can script a push back to the
 
 GitPushy Hook Stage Section
 --------
-After GitPushy builds a deployment it copies files through rsync to the local or remote _PUSHY_STAGE_DIR_. GitPushy then runs the commands in the stage section before completing deployment. Unlike the config and build stages the stage section happens in a directory which is not a git repository. Furthermore, it hapens outside of the GitPushy script environment and possibly on a remote server.
+After GitPushy builds a deployment it copies files through rsync to the local or remote __$PUSHY_STAGE_DIR__. GitPushy then runs the commands in the stage section before completing deployment. Unlike the config and build stages the stage section happens in a directory which is not a git repository. Furthermore, it hapens outside of the GitPushy script environment and possibly on a remote server.
 
 The state section is intended for times when you wish to check a deployment before actually deploying it. This allows you to run unit tests or simple litmus tests to prove the applcation is stable and ready to be deployed. If at any time you cause the stage section to exit with a value other than 0 GitPushy will abort and display the error code to the committer in the git commit scrollback.
 
 
 GitPushy Hook Deploy Section
 --------
-After stage returns successful GitPushy replaces code in the _PUSHY_DEPLOY_DIR_ and then executes the deploy section of a GitPushy Hook.
+After stage returns successful GitPushy replaces code in the __$PUSHY_DEPLOY_DIR__ and then executes the deploy section of a GitPushy Hook.
 
 This section is intended for any finalization and cleanup that must happen before a deployment can be called complete. This is where a database dump might be loaded or where daemons might be restarted to accept new configuration files.
 
@@ -65,7 +65,7 @@ GitPushy Hook Custom Section
 --------
 In some cases of more complex deployments you may wish to have more constrol over when and how deployments happen. In these case, GitPushy will replace the normal execution of build, stage and deploy with a single section to be scripted by you.
 
-This can be useful when multiple repositories are required or when you wish to change the sequence of events for a deployment. This script executes in the cloned git repository located at _PUSHY_BUILD_DIR_.
+This can be useful when multiple repositories are required or when you wish to change the sequence of events for a deployment. This script executes in the cloned git repository located at __$PUSHY_BUILD_DIR__.
 
 There are many scenarious that lend itself to custom hooks. Suppose a Makefile needs to be run for a long period, you want to add lock checking to your script to insure that consecutive commits are handled properly while the a build is in progress. Or perhaps you want to push and pull from other repositories and attempt some complicated git scripting.
 
@@ -74,19 +74,19 @@ GitPushy Configuration Variables
 --------
 Git Pushy comes with a short list of configuration variables to make it easy to setup a deployment.
 
- * PUSHY_REPO - Repository being pushed
- * PUSHY_BRANCH - Specifies the branch of the current commit
- * PUSHY_BUILD_DIR - Specifies the directory where build activity should take place 
- * PUSHY_STAGE_DIR - Specifies the directory where staging activity should take place
- * PUSHY_DEPLOY_DIR - Specifies the directory where deployment activity should take place
- * PUSHY_HOOK - Current hook being run
- * PUSHY_HOOKS - All hooks to be run
- * PUSHY_PORT - Remote port to connect in order to stage and deploy files
- * PUSHY_REMOTE - Boolean whether or not we
- * PUSHY_SERVER - Server hostname to push to
- * PUSHY_STATUS - Return code for current running hook
- * PUSHY_USER - remote user to connect as
- * PUSHY_VERBOSE - Whether to print verbose debug information to the console
+ * __$PUSHY_REPO__ - [String] Repository being pushed
+ * __$PUSHY_BRANCH__ - [String] Specifies the branch of the current commit
+ * __$PUSHY_BUILD_DIR__ - [String] Specifies the directory where build activity should take place 
+ * __$PUSHY_STAGE_DIR__ - [String] Specifies the directory where staging activity should take place
+ * __$PUSHY_DEPLOY_DIR__ - [String] Specifies the directory where deployment activity should take place
+ * __$PUSHY_HOOK__ - [String] Current hook being run
+ * __$PUSHY_HOOKS__ - [Array] All hooks to be run
+ * __$PUSHY_PORT__ - [Number] Remote port to connect in order to stage and deploy files
+ * __$PUSHY_REMOTE__ - [Boolean] whether or not deployment is to a remote server
+ * __$PUSHY_SERVER__ - [String] Server hostname to use when staging and deploying
+ * __$PUSHY_STATUS__ - [Boolean] Return code for current running hook
+ * __$PUSHY_USER__ - [String] Remote user to use to connect
+ * __$PUSHY_VERBOSE__ - [Boolean] Whether to print verbose debug information to the console
 
 
 GitPushy Scripting
