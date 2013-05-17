@@ -312,7 +312,7 @@ gitpushy-show() {
 }
 
 gitpushy-init() {
-	export PUSHY_REPO="$1"
+	export PUSHY_REPO=""
 	export PUSHY_BRANCH=""
 	export PUSHY_BRANCHES=()
 
