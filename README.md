@@ -11,29 +11,7 @@ GitPushy works as a trigger from git's *post_receive* hook. It uses this to trig
 A hook is devided into four section: _config_, _build_, _stage_, _deploy_ - each of these sections are further devided into a general and a specific part of the script. In adition to these four stages a fifth _custom_ stage can be added in place of the _build_, _stage_ and _deploy_ sections to aid in complex deployment proceedures.
 
 
-GitPushy Hook Config Section
---------
-The Config stage is intended to set key variables necesary for making a pushy deployment possible. The most simple version of this section consists of setting the _PUSHY_DEPLOY_DIR_ variable to the place where your final code will reside. Without specyfying this directory nothing will be done to deploy unless you have a custom section for your GitPushy hook.
-
-
-GitPushy Hook Build Section
---------
-
-
-GitPushy Hook Stage Section
---------
-
-
-GitPushy Hook Deploy Section
---------
-
-
-GitPushy Hook Custom Section
---------
-
-
-
-Anatomy of a Pushy Hook
+Anatomy of a GitPushy Hook
 --------
 When GitPushy is triggered everything starts with the main hook. The following files are run if they exist:
 
@@ -53,6 +31,32 @@ There are both general and hook-specific parts to each stage. The general part o
 
 NOTE: If the file .gitpushy-main-custom exists none of the other stages are called unless the custom script calls them specifically.
 
+
+GitPushy Hook Config Section
+--------
+The Config stage is intended to set key variables necesary for making a pushy deployment possible. The most simple version of this section consists of setting the _PUSHY_DEPLOY_DIR_ variable to the place where your final code will reside. Without specyfying this directory nothing will be done to deploy unless you have a custom section for your GitPushy hook. There are many other variables that can be set in this section. See GitPushy Config Variables for mor info.
+
+
+GitPushy Hook Build Section
+--------
+In the build section GitPushy creates a clean clone of a git repository and deposits it in the specified _PUSHY_BUILD_DIR_. The clone is set to the branch being deployed to it's latest commits. Then the build hook is run to do any of the heavy lifting necessary in the bundling of code. If this process is rather strenuous and time consuming it may be better to run these detatched from a _.gitpushy-hook-custom_ script to avoid monopolizing the git commit process. If a Makefile needs to be run you may also want to add lock checking to your scrpt to insure that consecutive commits are handled properly when a build may be in progress. See more on GitPushy Hooks Custom Section.
+
+In most cases where gitpushy is used to deploy websites this hook will only be used to move files to their proper location and possibly delete files that 
+
+
+GitPushy Hook Stage Section
+--------
+
+
+GitPushy Hook Deploy Section
+--------
+
+
+GitPushy Hook Custom Section
+--------
+
+
+Each replication is put in its own branch with the same name as the server who it pushed and replicated from. Note that replication may trigger gitpushy on the remote server if GitPushy is installed there too.
 
 GitPushy Configuration Variables
 --------
