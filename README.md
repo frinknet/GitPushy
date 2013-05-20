@@ -1,16 +1,12 @@
 GitPushy - A Simple Deployment Framework
 ========
 
-GitPushy is a siplified framework to aid in scripting [continuous deployment] [cd] and [continuous integration] [ci].
-At it's core, GitPushy is simply a Bash framework for [CD] [cd] and/or [CI] [ci] without a lot of needless fluff.
-
-[CD]: http://en.wikipedia.org/wiki/Continuous_deployment "Wikipedia: Continuous Deployment"
-[CI]: http://en.wikipedia.org/wiki/Continuous_integration "Wikipedia: Continuous Integration"
-
-Deployments should be simple. Send a git commit, deploy updates to intended servers. Different branches represent different stages of application development.
-Git branch access determins deployment access. Commiting to a certain branch triggers deployment on that branch. Deployments happen from multiple servers to
-multiple servers. Using git hooks allows us to capitalize on the distributed nature of git to enhance deployment. Manual deployments use bash from the command
-line so we might as well write the entire deployment engine in bash to avoid duplicating the effort.
+GitPushy is a siplified framework to aid in scripting [continuous deployment] [cd] and [continuous integration] [ci]. At it's core, GitPushy is simply a Bash
+framework for [CD] [cd] and [CI] [ci] without a lot of needless fluff. Deployments should be simple. Send a git commit, deploy updates to intended servers.
+Different branches represent different stages of application development. Git branch access determins deployment access. Commiting to a certain branch
+triggers deployment on that branch. Deployments happen from multiple servers to multiple servers. Using git hooks allows us to capitalize on the distributed
+nature of git to enhance deployment. Manual deployments use bash from the command line so we might as well write the entire deployment engine in Bash to
+avoid duplicating the effort.
 
 
 Instalation
@@ -182,3 +178,6 @@ your custom script in the git hooks directory as a file *gitpushy-{branch}-branc
 config files first. This hook is run in the **$PUSHY_BUILD_DIR** in a fresh git clone in place of the traditional _.gitpushy-*_ files. Since this file
 is not versioned it should be managed from another repository somewhere else. Also, you should be careful about installing this in *.gitolite/hooks/common*
 since it will run based on branch name.
+
+[CD]: http://en.wikipedia.org/wiki/Continuous_deployment "Wikipedia: Continuous Deployment"
+[CI]: http://en.wikipedia.org/wiki/Continuous_integration "Wikipedia: Continuous Integration"
