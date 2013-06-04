@@ -226,9 +226,9 @@ gitpushy-push-branch() {
 	export PUSHY_REPO="$PUSHY_REPO"
 
     # Process GitPushy Brnach Hooks
-	if [ -f $GIT_DIR/hooks/pushy-$PUSHY_BRANCH-branch ]; then
+	if [ -f $GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch ]; then
 		echo "GitPushy - Custom GitPushy Hook: pushy-$PUSHY_BRANCH-branch"
-		source $GIT_DIR/hooks/pushy-$PUSHY_BRANCH-branch
+		source $GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch
 
 		return $PUSHY_STATUS
 	fi

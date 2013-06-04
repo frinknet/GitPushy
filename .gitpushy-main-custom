@@ -1,9 +1,0 @@
-#!/bin/bash
-
-PUSHY_PORT=5288
-
-echo "GitPushy - Updating gitolite hook on $PUSHY_SERVER"
-
-gitpushy-cat gitpushy-common > $HOME/.gitolite/hooks/common/gitpushy-common
-
-gitpushy-push-replicate lucas.x042.com
