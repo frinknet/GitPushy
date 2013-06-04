@@ -80,7 +80,7 @@ gitpushy-stage() {
 
 	# capture exit status
 	PUSHY_STATUS=${PIPESTATUS[0]}
-	[ -s gitpushy-$PUSHY_DEPLOYMENT-stage.errlog ] && PUSHY_STATUS=500
+	[ -s gitpushy-$PUSHY_DEPLOYMENT-stage.error ] && PUSHY_STATUS=500
 
 	# return pushy status
 	return $PUSHY_STATUS
@@ -179,7 +179,7 @@ gitpushy-trigger() {
 
 		# capture exit status
 		PUSHY_STATUS=$?
-		[ -s gitpushy-$PUSHY_DEPLOYMENT-custom.errlog ] && PUSHY_STATUS=500
+		[ -s gitpushy-$PUSHY_DEPLOYMENT-custom.error ] && PUSHY_STATUS=500
 
 		echo "----------"
 	elif [ -n "$PUSHY_DEPLOY_DIR" ]; then
@@ -225,10 +225,17 @@ gitpushy-push-branch() {
 	export PUSHY_USER=$(whoami)
 	export PUSHY_REPO="$PUSHY_REPO"
 
-    # Process GitPushy Brnach Hooks
+    # Process GitPushy Branch Hooks
 	if [ -f $GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch ]; then
 		echo "GitPushy - Custom GitPushy Hook: pushy-$PUSHY_BRANCH-branch"
-		source $GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch
+		
+
+		# run branch hook
+		(source $GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch 1> >(tee gitpushy-$PUSHY_BRANCH-branch.output) 2> >(tee gitpushy-$PUSHY_BRANCH-branch.error))
+
+		# capture exit status
+		PUSHY_STATUS=$?
+		[ -s gitpushy-$PUSHY_BRANCH-branch.error ] && PUSHY_STATUS=500
 
 		return $PUSHY_STATUS
 	fi
