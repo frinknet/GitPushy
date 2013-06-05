@@ -225,10 +225,25 @@ gitpushy-push-branch() {
 	export PUSHY_USER=$(whoami)
 	export PUSHY_REPO="$PUSHY_REPO"
 
-    # Process GitPushy Branch Hooks
+
+	# check if branch exists
+	[ -z "$PUSHY_BRANCH" ] && "BRANCH was not passed to gitpushy-push-branch" && return 1
+	[ ! -f $GIT_DIR/refs/heads/$PUSHY_BRANCH ] && echo "$PUSHY_BRANCH does not exist in $PUSHY_REPO" && return 1
+
+	# check if this branch has gitpushy data
+	[ ! -f $GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch ] && [ -z "$(gitpushy-script config main;gitpushy-script custom main)" ] && return 0
+
+	# make a switch to clean local clone
+	gitpushy-workspace $PUSHY_BUILD_DIR
+
+	# reorient git
+	local REPO_DIR=$GIT_DIR
+	local REPO_PWD=$PWD
+	export GIT_DIR=$PUSHY_BUILD_DIR/.git
+
+	# Process GitPushy Branch Hooks
 	if [ -f $GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch ]; then
 		echo "GitPushy - Custom GitPushy Hook: pushy-$PUSHY_BRANCH-branch"
-		
 
 		# run branch hook
 		(source $GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch 1> >(tee gitpushy-$PUSHY_BRANCH-branch.output) 2> >(tee gitpushy-$PUSHY_BRANCH-branch.error))
@@ -236,37 +251,22 @@ gitpushy-push-branch() {
 		# capture exit status
 		PUSHY_STATUS=$?
 		[ -s gitpushy-$PUSHY_BRANCH-branch.error ] && PUSHY_STATUS=500
+	else
+		# run main trigger
+		gitpushy-trigger main
 
-		return $PUSHY_STATUS
+		# loop through addtional triggers
+		[ $PUSHY_STATUS = 0 ] && for PUSHY_DEPLOYMENT in ${PUSHY_TRIGGERS[@]}; do
+			gitpushy-trigger $PUSHY_DEPLOYMENT
+		done
 	fi
-
-	# check if branch exists
-	[ -z "$PUSHY_BRANCH" ] && "BRANCH was not passed to gitpushy-push-branch" && return 1
-	[ ! -f $GIT_DIR/refs/heads/$PUSHY_BRANCH ] && echo "$PUSHY_BRANCH does not exist in $PUSHY_REPO" && return 1
-
-	# check if this branch has gitpushy data
-	[ -z "$(gitpushy-script config main;gitpushy-script custom main)" ] && return 0
-
-	# make a clean local clone
-	(rm -rf $PUSHY_BUILD_DIR; git clone -b $PUSHY_BRANCH . $PUSHY_BUILD_DIR) >/dev/null
-
-	# switch to clone
-	cd $PUSHY_BUILD_DIR
-
-	# reorient git
-	local REPO_DIR=$GIT_DIR
-	export GIT_DIR=$PUSHY_BUILD_DIR/.git
-
-	# run main trigger
-	gitpushy-trigger main
-
-	# loop through addtional triggers
-	[ $PUSHY_STATUS = 0 ] && for PUSHY_DEPLOYMENT in ${PUSHY_TRIGGERS[@]}; do
-		gitpushy-trigger $PUSHY_DEPLOYMENT
-	done
 
 	# reset git orientation
 	export GIT_DIR=$REPO_DIR
+	cd $REPO_PWD
+
+	# reset git orientation
+	return $PUSHY_STATUS
 }
 
 gitpushy-push-replicate() {
@@ -307,12 +307,22 @@ gitpushy-push-replicate() {
 	done
 }
 
+gitpushy-workspace() {
+	[ -z "$PUSHY_BRANCH" ] && PUSHY_BRANCH=$(gitpushy-branch-name)
+
+	# make a clean local clone
+	(rm -rf $1; git clone -b $PUSHY_BRANCH . $1) >/dev/null
+
+	# switch to clone
+	cd $1
+}
+
 gitpushy-script() {
 	[ -z "$PUSHY_BRANCH" ] && PUSHY_BRANCH=$(gitpushy-branch-name)
 
-    gitpushy-cat .gitpushy-$1 .gitpushy-$1-$PUSHY_BRANCH
+	gitpushy-cat .gitpushy-$1 .gitpushy-$1-$PUSHY_BRANCH
 
-    [ -n "$2" ] && gitpushy-script $2-$1 ${@:3}
+	[ -n "$2" ] && gitpushy-script $2-$1 ${@:3}
 }
 
 gitpushy-cat() {
