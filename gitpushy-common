@@ -343,7 +343,7 @@ gitpushy-clean-temp() {
 	[ -z "$1" ] && echo "GitPushy - No build directory specified" && local CLEAN_STATUS=404
 
 	if [ $CLEAN_STATUS = 0 ]; then
-		(rm -rf $1; git clone -b $PUSHY_BRANCH . $1) >/dev/null
+		(rm -rf $1) >/dev/null
 
 		local CLEAN_STATUS=${PIPESTATUS[0]}
 
