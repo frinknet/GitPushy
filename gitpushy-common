@@ -18,7 +18,7 @@ gitpushy-build() {
 	# check pushy status
 	[ $PUSHY_STATUS != 0 ] && return $PUSHY_STATUS
 
-	echo "GitPushy - Building $PUSHY_REPO:$PUSHY_BRANCH in $HOSTNAME:$PUSHY_BUILD_DIR"
+	echo "GitPushy - Building $PUSHY_REPO:$PUSHY_BRANCH at $HOSTNAME:$PUSHY_BUILD_DIR"
 
 	# build rsync command (complex because we honor gitattributes
 	PUSHY_SYNC="rsync -a --exclude='.git*' $(gitpushy-cat .gitattributes|grep export-ignore|cut -d' ' -f1|tr '\n' '\0' | xargs -0 -I {} echo "--exclude='{}'" | tr '\n' ' ')"
@@ -92,7 +92,7 @@ gitpushy-deploy() {
 	# check pushy status
 	[ $PUSHY_STATUS != 0 ] && return $PUSHY_STATUS 
 
-	echo "GitPushy - Deploying $PUSHY_REPO:$PUSHY_BRANCH in $PUSHY_SERVER:$PUSHY_DEPLOY_DIR"
+	echo "GitPushy - Deploying $PUSHY_REPO:$PUSHY_BRANCH to $PUSHY_SERVER:$PUSHY_DEPLOY_DIR"
 
 	#prepare pushy deploy script
 	echo "$PUSHY_ENV" > gitpushy-$1-deploy.command
