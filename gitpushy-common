@@ -242,11 +242,11 @@ gitpushy-push-branch() {
 	export GIT_DIR=$PUSHY_BUILD_DIR/.git
 
 	# Process GitPushy Branch Hooks
-	if [ -f $GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch ]; then
+	if [ -f $GIT_BARE/hooks/gitpushy-$PUSHY_BRANCH-branch ]; then
 		echo "GitPushy - Custom GitPushy Hook: pushy-$PUSHY_BRANCH-branch"
 
 		# run branch hook
-		(source $GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch 1> >(tee gitpushy-$PUSHY_BRANCH-branch.output) 2> >(tee gitpushy-$PUSHY_BRANCH-branch.error))
+		(source $GIT_BARE/hooks/gitpushy-$PUSHY_BRANCH-branch 1> >(tee gitpushy-$PUSHY_BRANCH-branch.output) 2> >(tee gitpushy-$PUSHY_BRANCH-branch.error))
 
 		# capture exit status
 		PUSHY_STATUS=$?
@@ -330,7 +330,7 @@ gitpushy-cat() {
 
 	# cat files in repo
 	grep -v "^\s*$" <(for file in $@; do
-		git show heads/$PUSHY_BRANCH:$file 2>/dev/null
+		git show refs/heads/$PUSHY_BRANCH:$file 2>/dev/null
 	done)
 }
 
