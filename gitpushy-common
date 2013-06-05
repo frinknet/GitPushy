@@ -320,9 +320,9 @@ gitpushy-clone-temp() {
 	[ -z "$PUSHY_BRANCH" ] && PUSHY_BRANCH=$(gitpushy-branch-name)
 	[ -z "$1" ] && echo "GitPushy - No build directory specified" && local CLONE_STATUS=404
 
-	if [ -z "$CLONE_STATUS" ]; then
+	if [ $CLONE_STATUS = 0 ]; then
 		# make a clean local clone
-		(rm -rf $1; git clone -b $PUSHY_BRANCH . $1) >/dev/null
+		(rm -rf $1; git clone -b $PUSHY_BRANCH . $1) # >/dev/null
 
 		local CLONE_STATUS=${PIPESTATUS[0]}
 
@@ -342,15 +342,13 @@ gitpushy-clean-temp() {
 	local CLEAN_STATUS=0
 	[ -z "$1" ] && echo "GitPushy - No build directory specified" && local CLEAN_STATUS=404
 
-	cd $1
-
-	if [ -z "$CLEAN_STATUS" ]; then
+	if [ $CLEAN_STATUS = 0 ]; then
 		(rm -rf $1; git clone -b $PUSHY_BRANCH . $1) >/dev/null
 
 		local CLEAN_STATUS=${PIPESTATUS[0]}
 
 		# switch to clone
-		cd $PUSHY_BARE
+		[ -n "$PUSHY_BARE" ] && cd $PUSHY_BARE
 	fi
 
 	# echo status
