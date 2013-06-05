@@ -233,12 +233,14 @@ gitpushy-push-branch() {
 	# check if this branch has gitpushy data
 	[ ! -f $GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch ] && [ -z "$(gitpushy-script config main;gitpushy-script custom main)" ] && echo "NO PUSHY BRANCH" && return 0
 
+	# remember current repo settings
+	local REPO_DIR=$GIT_DIR
+	local REPO_BARE=$PWD
+
 	# make a switch to clean local clone
 	gitpushy-workspace $PUSHY_BUILD_DIR
 
 	# reorient git
-	local REPO_DIR=$GIT_DIR
-	local REPO_BARE=$PWD
 	export GIT_DIR=$PUSHY_BUILD_DIR/.git
 
 	# Process GitPushy Branch Hooks
