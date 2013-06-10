@@ -48,8 +48,7 @@ gitpushy-build() {
 
 	# capture execution status
 	PUSHY_STATUS=${PIPESTATUS[0]}
-
-	[ -s gitpushy-$1-build.error ] && PUSHY_STATUS=500
+	[ $PUSHY_STATUS = 0 ] && [ -s gitpushy-$1-build.error ] && PUSHY_STATUS=500
 
 	# return pushy status
 	return $PUSHY_STATUS
@@ -82,7 +81,7 @@ gitpushy-stage() {
 
 	# capture exit status
 	PUSHY_STATUS=${PIPESTATUS[0]}
-	[ -s gitpushy-$1-stage.error ] && PUSHY_STATUS=500
+	[ $PUSHY_STATUS = 0 ] && [ -s gitpushy-$1-stage.error ] && PUSHY_STATUS=500
 
 	# return pushy status
 	return $PUSHY_STATUS
@@ -90,7 +89,7 @@ gitpushy-stage() {
 
 gitpushy-deploy() {
 	# check pushy status
-	[ $PUSHY_STATUS != 0 ] && return $PUSHY_STATUS 
+	[ $PUSHY_STATUS != 0 ] && return $PUSHY_STATUS
 
 	echo "GitPushy - Deploying $PUSHY_REPO:$PUSHY_BRANCH to $PUSHY_SERVER:$PUSHY_DEPLOY_DIR"
 
@@ -98,8 +97,7 @@ gitpushy-deploy() {
 	echo "$PUSHY_ENV" > gitpushy-$1-deploy.command
 	echo "PUSHY_TRIGGER='$1'" >> gitpushy-$1-deploy.command
 	echo "PUSHY_STATUS='$PUSHY_STATUS'" >> gitpushy-$1-deploy.command
-	echo "[ ! -d '$PUSHY_DEPLOY_DIR' ] && echo 'directory does not exist - $PUSHY_DEPLOY_DIR' >&2 && exit 404" >> gitpushy-$1-deploy.command
-	echo "rm -rf $PUSHY_DEPLOY_DIR" >> gitpushy-$1-deploy.command
+	echo "[ -d '$PUSHY_DEPLOY_DIR' ] && rm -rf $PUSHY_DEPLOY_DIR" >> gitpushy-$1-deploy.command
 	echo "rsync -a --exclude='gitpushy-*' $PUSHY_STAGE_DIR $PUSHY_DEPLOY_DIR" >> gitpushy-$1-deploy.command
 	echo "cd $PUSHY_DEPLOY_DIR" >> gitpushy-$1-deploy.command
 	gitpushy-script deploy $1 >> gitpushy-$1-deploy.command
@@ -117,7 +115,7 @@ gitpushy-deploy() {
 
 	# capture exit status
 	PUSHY_STATUS=${PIPESTATUS[0]}
-	[ -s gitpushy-$1-deploy.error ] && PUSHY_STATUS=500
+	[ $PUSHY_STATUS = 0 ] && [ -s gitpushy-$1-deploy.error ] && PUSHY_STATUS=500
 
 	# return pushy status
 	return $PUSHY_STATUS
@@ -140,7 +138,7 @@ gitpushy-trigger() {
 
 	# capture exit status
 	PUSHY_STATUS=$?
-	[ -s gitpushy-$1-config.error ] && PUSHY_STATUS=500
+	[ $PUSHY_STATUS = 0 ] && [ -s gitpushy-$1-config.error ] && PUSHY_STATUS=500
 
 	# set pushy remote vs local
 	[ "$PUSHY_SERVER" != "$(hostname)" ] && PUSHY_REMOTE=1
@@ -182,7 +180,7 @@ gitpushy-trigger() {
 
 		# capture exit status
 		PUSHY_STATUS=$?
-		[ -s gitpushy-$1-custom.error ] && PUSHY_STATUS=500
+		[ $PUSHY_STATUS = 0 ] && [ -s gitpushy-$1-custom.error ] && PUSHY_STATUS=500
 
 		echo "----------"
 	elif [ -n "$PUSHY_DEPLOY_DIR" ]; then
