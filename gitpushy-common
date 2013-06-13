@@ -320,7 +320,7 @@ gitpushy-clone-temp() {
 
 	if [ $CLONE_STATUS = 0 ]; then
 		# make a clean local clone
-		(rm -rf $1; git clone -b $PUSHY_BRANCH . $1) # >/dev/null
+		(rm -rf $1; git clone -b $PUSHY_BRANCH . $1) >/dev/null
 
 		local CLONE_STATUS=${PIPESTATUS[0]}
 
