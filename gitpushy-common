@@ -57,7 +57,7 @@ gitpushy-build() {
 
 gitpushy-stage() {
 	# check pushy status
-	[ $PUSHY_STATUS != 0 ] && return $PUSHY_STATUS 
+	[ $PUSHY_STATUS != 0 ] && return $PUSHY_STATUS
 
 	echo "GitPushy - Staging $PUSHY_REPO:$PUSHY_BRANCH in $PUSHY_SERVER:$PUSHY_STAGE_DIR"
 
@@ -148,8 +148,8 @@ gitpushy-trigger() {
 	# setup pushy environment variables
 	export PUSHY_ENV="
 	PUSHY_DEPLOY_DIR='$PUSHY_DEPLOY_DIR/'
-	PUSHY_STAGE_DIR='$PUSHY_STAGE_DIR'
-	PUSHY_BUILD_DIR='$PUSHY_BUILD_DIR'
+	PUSHY_STAGE_DIR='$PUSHY_STAGE_DIR/'
+	PUSHY_BUILD_DIR='$PUSHY_BUILD_DIR/'
 	PUSHY_VERBOSE='$PUSHY_VERBOSE'
 	PUSHY_SERVER='$PUSHY_SERVER'
 	PUSHY_REMOTE='$PUSHY_REMOTE'
@@ -215,8 +215,8 @@ gitpushy-trigger() {
 gitpushy-push-branch() {
 	# Export pushy variables to main environment
 	export PUSHY_DEPLOY_DIR=""
-	export PUSHY_BUILD_DIR="/tmp/pushy-$1-build.$RANDOM$RANDOM/"
-	export PUSHY_STAGE_DIR="$HOME/pushy-staging-$PUSHY_REPO-$1/"
+	export PUSHY_BUILD_DIR="/tmp/pushy-$1-build.$RANDOM$RANDOM"
+	export PUSHY_STAGE_DIR="~/pushy-staging-$PUSHY_REPO-$1"
 	export PUSHY_VERBOSE=0
 	export PUSHY_STATUS=0
 	export PUSHY_REMOTE=0
