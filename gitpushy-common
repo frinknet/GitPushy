@@ -4,7 +4,6 @@
 #
 # @link http://gitpushy.com
 # @author Micon Frink & Friends <frink@frinknet.com>
-#
 # @copyright (c) 2013 - FRINKnet and the Expatriated Lemurs of Borneo
 # Licenced under the MIT license see - http://lemurs.mit-license.org/
 
@@ -27,15 +26,15 @@ gitpushy-build() {
 	if [ $PUSHY_REMOTE = 0 ]; then
 		PUSHY_SYNC="$PUSHY_SYNC $PUSHY_BUILD_DIR $PUSHY_STAGE_DIR"
 	else
-		PUSHY_SYNC="$PUSHY_SYNC "'--rsh="ssh -p$PUSHY_PORT" $PUSHY_BUILD_DIR $PUSHY_USER@$PUSHY_SERVER:$PUSHY_STAGE_DIR'
+		PUSHY_SYNC="$PUSHY_SYNC --rsh='ssh -p$PUSHY_PORT' "'"$PUSHY_BUILD_DIR"'" $PUSHY_USER@$PUSHY_SERVER:$PUSHY_STAGE_DIR"
 	fi
 
 	# prepare pushy build script
 	echo "$PUSHY_ENV" > gitpushy-$1-build.command
 	echo "PUSHY_TRIGGER='$1'" >> gitpushy-$1-build.command
-	echo "PUSHY_STATUS='$PUSHY_STATUS'" >> gitpushy-$1-build.command
-	echo '[ ! -d "$PUSHY_BUILD_DIR" ] && echo "directory does not exist - $PUSHY_BUILD_DIR" >&2 && exit 404' >> gitpushy-$1-build.command
-	echo 'cd $PUSHY_BUILD_DIR' >> gitpushy-$1-build.command
+	echo "PUSHY_STATUS='$PUSHY_STATUS'" >> gitpushy-$1-stage.command
+    echo 'cd "$PUSHY_BUILD_DIR" > /dev/null' >> gitpushy-$1-build.command
+	echo '[ $? != 0 ] && echo "directory does not exist - $PUSHY_BUILD_DIR" >&2 && exit 404' >> gitpushy-$1-build.command
 	echo "git reset --hard HEAD > /dev/null" >> gitpushy-$1-build.command
 	gitpushy-script build $1 >> gitpushy-$1-build.command
 	echo "$PUSHY_SYNC" >> gitpushy-$1-build.command
@@ -65,8 +64,8 @@ gitpushy-stage() {
 	echo "$PUSHY_ENV" > gitpushy-$1-stage.command
 	echo "PUSHY_TRIGGER='$1'" >> gitpushy-$1-stage.command
 	echo "PUSHY_STATUS='$PUSHY_STATUS'" >> gitpushy-$1-stage.command
-	echo '[ ! -d "$PUSHY_STAGE_DIR" ] && echo "directory does not exist - $PUSHY_STAGE_DIR" >&2 && exit 404' >> gitpushy-$1-stage.command
-	echo 'cd $PUSHY_STAGE_DIR' >> gitpushy-$1-stage.command
+    echo 'cd "$PUSHY_STAGE_DIR" > /dev/null' >> gitpushy-$1-build.command
+	echo '[ $? != 0 ] && echo "directory does not exist - $PUSHY_STAGE_DIR" >&2 && exit 404' >> gitpushy-$1-build.command
 	gitpushy-script stage $1 >> gitpushy-$1-stage.command
 	echo 'exit $PUSHY_STATUS' >> gitpushy-$1-stage.command
 
@@ -98,10 +97,12 @@ gitpushy-deploy() {
 	echo "$PUSHY_ENV" > gitpushy-$1-deploy.command
 	echo "PUSHY_TRIGGER='$1'" >> gitpushy-$1-deploy.command
 	echo "PUSHY_STATUS='$PUSHY_STATUS'" >> gitpushy-$1-deploy.command
-	echo '[ -d "$PUSHY_DEPLOY_DIR" ] && [-n "$PUSHY_DEPLOY_BACKUP" ] && tar xzf $PUSHY_DEPLOY_BACKUP $PUSHY_DEPLOY_DIR' >> gitpushy-$1-deploy.command
-	echo '[ -d "$PUSHY_DEPLOY_DIR" ] && rm -rf $PUSHY_DEPLOY_DIR' >> gitpushy-$1-deploy.command
-	echo 'rsync -a --exclude='gitpushy-*' $PUSHY_STAGE_DIR $PUSHY_DEPLOY_DIR' >> gitpushy-$1-deploy.command
-	echo 'cd $PUSHY_DEPLOY_DIR' >> gitpushy-$1-deploy.command
+    echo 'cd "$PUSHY_DEPLOY_DIR" > /dev/null' >> gitpushy-$1-build.command
+	echo '[ $? != 0 ] && echo "directory does not exist - $PUSHY_DEPLOY_DIR" >&2 && exit 404' >> gitpushy-$1-build.command
+    echo '[-n "$PUSHY_DEPLOY_BACKUP" ] && tar xzf "$PUSHY_DEPLOY_BACKUP" .' >> gitpushy-$1-deploy.command
+	echo 'rm -rf $PUSHY_DEPLOY_DIR' >> gitpushy-$1-deploy.command
+	echo 'rsync -a --exclude='gitpushy-*' "$PUSHY_STAGE_DIR" "$PUSHY_DEPLOY_DIR"' >> gitpushy-$1-deploy.command
+    echo 'cd "$PUSHY_DEPLOY_DIR"' >> gitpushy-$1-build.command
 	gitpushy-script deploy $1 >> gitpushy-$1-deploy.command
 	echo 'exit $PUSHY_STATUS' >> gitpushy-$1-deploy.command
 
@@ -146,10 +147,11 @@ gitpushy-trigger() {
 	[ "$PUSHY_SERVER" != "$(hostname)" ] && PUSHY_REMOTE=1
 
 	# setup pushy environment variables
-	export PUSHY_ENV="$(echo "
-	PUSHY_DEPLOY_DIR='$PUSHY_DEPLOY_DIR/'
-	PUSHY_STAGE_DIR='$PUSHY_STAGE_DIR/'
-	PUSHY_BUILD_DIR='$PUSHY_BUILD_DIR/'
+	export PUSHY_ENV="
+	PUSHY_BUILD_DIR="$(echo "$PUSHY_BUILD_DIR" | sed 's/^~/$HOME/')"
+	PUSHY_STAGE_DIR="$(echo "$PUSHY_DEPLOY_DIR" | sed 's/^~/$HOME/')"
+	PUSHY_DEPLOY_DIR="$(echo "$PUSHY_DEPLOY_DIR" | sed 's/^~/$HOME/')"
+	PUSHY_DEPLOY_BACKUP="$(echo "$PUSHY_DEPLOY_BACKUP" | sed 's/^~/$HOME/')"
 	PUSHY_VERBOSE='$PUSHY_VERBOSE'
 	PUSHY_SERVER='$PUSHY_SERVER'
 	PUSHY_REMOTE='$PUSHY_REMOTE'
@@ -157,7 +159,7 @@ gitpushy-trigger() {
 	PUSHY_PORT='$PUSHY_PORT'
 	PUSHY_USER='$PUSHY_USER'
 	PUSHY_REPO='$PUSHY_REPO'
-	" | sed -e 's/'"'"'/"/g' -e 's/="~/="$HOME/' )"
+	"
 
 	# show commands run if verbosity is set
 	[ $PUSHY_VERBOSE != 0 ] && echo "$PUSHY_CONFIG" | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-config: - {}"
@@ -214,6 +216,7 @@ gitpushy-trigger() {
 
 gitpushy-push-branch() {
 	# Export pushy variables to main environment
+	export PUSHY_DEPLOY_BACKUP="~/$PUSHY_REPO-$(date +%Y%m%d-%H%M%S).tgz"
 	export PUSHY_DEPLOY_DIR=""
 	export PUSHY_BUILD_DIR="/tmp/pushy-$1-build.$RANDOM$RANDOM"
 	export PUSHY_STAGE_DIR="~/pushy-staging-$PUSHY_REPO-$1"
