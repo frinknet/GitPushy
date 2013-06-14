@@ -146,7 +146,7 @@ gitpushy-trigger() {
 	[ "$PUSHY_SERVER" != "$(hostname)" ] && PUSHY_REMOTE=1
 
 	# setup pushy environment variables
-	export PUSHY_ENV="
+	export PUSHY_ENV="$(echo "
 	PUSHY_DEPLOY_DIR='$PUSHY_DEPLOY_DIR/'
 	PUSHY_STAGE_DIR='$PUSHY_STAGE_DIR/'
 	PUSHY_BUILD_DIR='$PUSHY_BUILD_DIR/'
@@ -157,7 +157,7 @@ gitpushy-trigger() {
 	PUSHY_PORT='$PUSHY_PORT'
 	PUSHY_USER='$PUSHY_USER'
 	PUSHY_REPO='$PUSHY_REPO'
-	"
+    " | sed '"'s/'/'"'"'/g'"' 's/"'"'"~/\$HOME/g' )"
 
 	# show commands run if verbosity is set
 	[ $PUSHY_VERBOSE != 0 ] && echo "$PUSHY_CONFIG" | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-config: - {}"
