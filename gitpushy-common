@@ -195,9 +195,9 @@ gitpushy-trigger() {
 	else
 		local DEPLOYMENT_RUN="$1 config"
 
-		echo "GitPushy - Invalid config no deploy directory"
+		echo "GitPushy - No deploy directory"
 
-		PUSHY_STATUS=500
+		//PUSHY_STATUS=500
 	fi
 
 	# echo status
