@@ -36,7 +36,7 @@ gitpushy-build() {
 	echo "PUSHY_STATUS='$PUSHY_STATUS'" >> gitpushy-$1-build.command
 	echo "[ ! -d '$PUSHY_BUILD_DIR' ] && echo 'directory does not exist - $PUSHY_BUILD_DIR' >&2 && exit 404" >> gitpushy-$1-build.command
 	echo "cd $PUSHY_BUILD_DIR" >> gitpushy-$1-build.command
-	echo "git reset --hard HEAD" >> gitpushy-$1-build.command
+	echo "git reset --hard HEAD > /dev/null" >> gitpushy-$1-build.command
 	gitpushy-script build $1 >> gitpushy-$1-build.command
 	echo "$PUSHY_SYNC" >> gitpushy-$1-build.command
 	echo "exit $PUSHY_STATUS" >> gitpushy-$1-build.command
