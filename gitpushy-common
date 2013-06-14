@@ -340,7 +340,7 @@ gitpushy-clone-temp() {
 gitpushy-clean-temp() {
 	local CLEAN_STATUS=0
 	[ -z "$1" ] && echo "GitPushy - No build directory specified" && local CLEAN_STATUS=404
-	if [ $PUSHY_STATUS != 0 ] && echo "GitPushy - Leaving build directory $1" && return 500
+	[ $PUSHY_STATUS != 0 ] && echo "GitPushy - Leaving build directory $1" && return 500
 
 	if [ $CLEAN_STATUS = 0 ]; then
 		(rm -rf $1) >/dev/null
