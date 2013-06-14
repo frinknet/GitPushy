@@ -97,6 +97,7 @@ gitpushy-deploy() {
 	echo "$PUSHY_ENV" > gitpushy-$1-deploy.command
 	echo "PUSHY_TRIGGER='$1'" >> gitpushy-$1-deploy.command
 	echo "PUSHY_STATUS='$PUSHY_STATUS'" >> gitpushy-$1-deploy.command
+	echo "[ -d '$PUSHY_DEPLOY_DIR' ] && [-n '$PUSHY_DEPLOY_BACKUP' ] && tar xzf $PUSHY_DEPLOY_BACKUP $PUSHY_DEPLOY_DIR" >> gitpushy-$1-deploy.command
 	echo "[ -d '$PUSHY_DEPLOY_DIR' ] && rm -rf $PUSHY_DEPLOY_DIR" >> gitpushy-$1-deploy.command
 	echo "rsync -a --exclude='gitpushy-*' $PUSHY_STAGE_DIR $PUSHY_DEPLOY_DIR" >> gitpushy-$1-deploy.command
 	echo "cd $PUSHY_DEPLOY_DIR" >> gitpushy-$1-deploy.command
