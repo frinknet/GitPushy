@@ -109,7 +109,7 @@ gitpushy-deploy() {
     echo "$PUSHY_ENV" > $IO_CMD
     echo "PUSHY_TRIGGER='$1'" >> $IO_CMD
     echo "PUSHY_STATUS='$PUSHY_STATUS'" >> $IO_CMD
-    echo 'cd "$PUSHY_DEPLOY_DIR" > /dev/null' >> $IO_CMD
+    echo 'cd "$PUSHY_DEPLOY_DIR" 2>/dev/null' >> $IO_CMD
     echo 'if [ $? != 0 ]; then' >> $IO_CMD
     echo 'echo "Deploying to blank directory: $PUSHY_DEPLOY_DIR"' >> $IO_CMD
     echo 'elif [ -n "$PUSHY_DEPLOY_BACKUP" ]; then' >> $IO_CMD
@@ -125,7 +125,7 @@ gitpushy-deploy() {
     echo 'exit $PUSHY_STATUS' >> $IO_CMD
 
     # show commands run if verbosity is set
-    [ $PUSHY_VERBOSE != 0 ] && cat $IO_CMD | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-stage: {}"
+    [ $PUSHY_VERBOSE != 0 ] && cat $IO_CMD | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-deploy: {}"
 
     # run pushy deploy scripts
     if [ $PUSHY_REMOTE = 0 ]; then
