@@ -28,9 +28,9 @@ gitpushy-build() {
 
     # Rsync files to PUSHY_STAGE_DIR
     if [ $PUSHY_REMOTE = 0 ]; then
-        PUSHY_SYNC="$PUSHY_SYNC $PUSHY_BUILD_DIR $PUSHY_STAGE_DIR"
+        PUSHY_SYNC="$PUSHY_SYNC "'"$PUSHY_BUILD_DIR"'" '$PUSHY_STAGE_DIR/'"
     else
-        PUSHY_SYNC="$PUSHY_SYNC --rsh='ssh -p$PUSHY_PORT' "'"$PUSHY_BUILD_DIR"'" $PUSHY_USER@$PUSHY_SERVER:$PUSHY_STAGE_DIR"
+        PUSHY_SYNC="$PUSHY_SYNC --rsh='ssh -p$PUSHY_PORT' "'"$PUSHY_BUILD_DIR/"'" '$PUSHY_USER@$PUSHY_SERVER:$PUSHY_STAGE_DIR/'"
     fi
 
     # prepare pushy build script
@@ -117,8 +117,8 @@ gitpushy-deploy() {
     echo 'fi' >> $IO_CMD
     echo 'rm -rf $PUSHY_DEPLOY_DIR' >> $IO_CMD
     echo 'cd "$PUSHY_STAGE_DIR"' >> $IO_CMD
-    echo '[ $? != 0 ] && echo "Stage directory does not exist - $PUSHY_STAGE_DIR" >&2 && exit 404' >> $IO_CMD
-    echo 'rsync -a --exclude='gitpushy-*' "$PUSHY_STAGE_DIR" "$PUSHY_DEPLOY_DIR"' >> $IO_CMD
+    echo '[ $? != 0 ] && echo "No stage directory: $PUSHY_STAGE_DIR" >&2 && exit 404' >> $IO_CMD
+    echo 'rsync -a --exclude='gitpushy-*' "$PUSHY_STAGE_DIR/" "$PUSHY_DEPLOY_DIR/"' >> $IO_CMD
     echo 'cd "$PUSHY_DEPLOY_DIR"' >> $IO_CMD
     echo '[ $? != 0 ] && echo "Deployment failed to $PUSHY_DEPLOY_DIR" >&2 && exit 404' >> $IO_CMD
     gitpushy-script deploy $1 >> $IO_CMD
