@@ -100,7 +100,7 @@ gitpushy-deploy() {
     echo 'cd "$PUSHY_DEPLOY_DIR" > /dev/null' >> gitpushy-$1-deploy.command
     echo 'if [ $? != 0 ]; then' >> gitpushy-$1-deploy.command
 	echo 'echo "Deploying to blank directory: $PUSHY_DEPLOY_DIR"' >> gitpushy-$1-deploy.command
-    echo 'elif [ -n "$PUSHY_DEPLOY_BACKUP" ]; then" .' >> gitpushy-$1-deploy.command
+    echo 'elif [ -n "$PUSHY_DEPLOY_BACKUP" ]; then' >> gitpushy-$1-deploy.command
     echo 'tar xzf "$PUSHY_DEPLOY_BACKUP" .' >> gitpushy-$1-deploy.command
     echo 'fi' >> gitpushy-$1-deploy.command
 	echo 'rm -rf $PUSHY_DEPLOY_DIR' >> gitpushy-$1-deploy.command
