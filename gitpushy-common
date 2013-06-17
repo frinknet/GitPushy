@@ -99,7 +99,7 @@ gitpushy-deploy() {
 	echo "PUSHY_STATUS='$PUSHY_STATUS'" >> gitpushy-$1-deploy.command
     echo 'cd "$PUSHY_DEPLOY_DIR" > /dev/null' >> gitpushy-$1-build.command
 	echo '[ $? != 0 ] && echo "directory does not exist - $PUSHY_DEPLOY_DIR" >&2 && exit 404' >> gitpushy-$1-build.command
-    echo '[ -n "$PUSHY_DEPLOY_BACKUP" ] && tar xzf "$PUSHY_DEPLOY_BACKUP" .' >> gitpushy-$1-deploy.command
+    echo '[ -n "$PUSHY_DEPLOY_BACKUP" ] && [ -d "$PUSHY_DEPLOY_DIR" ] && tar xzf "$PUSHY_DEPLOY_BACKUP" .' >> gitpushy-$1-deploy.command
 	echo 'rm -rf $PUSHY_DEPLOY_DIR' >> gitpushy-$1-deploy.command
 	echo 'rsync -a --exclude='gitpushy-*' "$PUSHY_STAGE_DIR" "$PUSHY_DEPLOY_DIR"' >> gitpushy-$1-deploy.command
     echo 'cd "$PUSHY_DEPLOY_DIR"' >> gitpushy-$1-build.command
