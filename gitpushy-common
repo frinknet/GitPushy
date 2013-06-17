@@ -166,7 +166,6 @@ gitpushy-trigger() {
 
 	# show environment if verbosity is set
 	[ $PUSHY_VERBOSE != 0 ] && echo "$PUSHY_ENV" | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-environment - {}"
-    exit
 
 	# run deployment scripts
 	if [ $PUSHY_STATUS != 0 ]; then
