@@ -149,7 +149,7 @@ gitpushy-trigger() {
 	# setup pushy environment variables
 	export PUSHY_ENV="
 	PUSHY_BUILD_DIR="$(echo "$PUSHY_BUILD_DIR" | sed 's/^~/$HOME/')"
-	PUSHY_STAGE_DIR="$(echo "$PUSHY_DEPLOY_DIR" | sed 's/^~/$HOME/')"
+	PUSHY_STAGE_DIR="$(echo "$PUSHY_STAGE_DIR" | sed 's/^~/$HOME/')"
 	PUSHY_DEPLOY_DIR="$(echo "$PUSHY_DEPLOY_DIR" | sed 's/^~/$HOME/')"
 	PUSHY_DEPLOY_BACKUP="$(echo "$PUSHY_DEPLOY_BACKUP" | sed 's/^~/$HOME/')"
 	PUSHY_VERBOSE='$PUSHY_VERBOSE'
