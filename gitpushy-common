@@ -113,7 +113,7 @@ gitpushy-deploy() {
     echo 'if [ $? != 0 ]; then' >> $IO_CMD
     echo 'echo "Deploying to blank directory: $PUSHY_DEPLOY_DIR"' >> $IO_CMD
     echo 'elif [ -n "$PUSHY_DEPLOY_BACKUP" ]; then' >> $IO_CMD
-    echo 'tar xzf "$PUSHY_DEPLOY_BACKUP" .' >> $IO_CMD
+    echo 'tar czf "$PUSHY_DEPLOY_BACKUP" .' >> $IO_CMD
     echo 'fi' >> $IO_CMD
     echo 'rm -rf $PUSHY_DEPLOY_DIR' >> $IO_CMD
     echo 'cd "$PUSHY_STAGE_DIR"' >> $IO_CMD
