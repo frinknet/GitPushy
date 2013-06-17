@@ -28,7 +28,7 @@ gitpushy-build() {
 
     # Rsync files to PUSHY_STAGE_DIR
     if [ $PUSHY_REMOTE = 0 ]; then
-        PUSHY_SYNC="$PUSHY_SYNC "'"$PUSHY_BUILD_DIR"'" '$PUSHY_STAGE_DIR/'"
+        PUSHY_SYNC="$PUSHY_SYNC "'"$PUSHY_BUILD_DIR/" "$PUSHY_STAGE_DIR/"'
     else
         PUSHY_SYNC="$PUSHY_SYNC --rsh='ssh -p$PUSHY_PORT' "'"$PUSHY_BUILD_DIR/"'" '$PUSHY_USER@$PUSHY_SERVER:$PUSHY_STAGE_DIR/'"
     fi
