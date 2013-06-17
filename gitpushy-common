@@ -254,7 +254,7 @@ gitpushy-push-branch() {
     [ ! -f $GIT_DIR/refs/heads/$PUSHY_BRANCH ] && echo "$PUSHY_BRANCH does not exist in $PUSHY_REPO" && return 1
 
     # check if this branch has gitpushy data
-    [ ! -f $GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch ] && [ -z "$(gitpushy-script config main;gitpushy-script custom main)" ] && echo "GitPushy - Uncofigured branch $PUSHY_REPO:$PUSHY_BRANCH" && return 0
+    [ ! -f $GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch ] && [ -z "$(gitpushy-script config main;gitpushy-script custom main)" ] && echo "No GitPushy for $PUSHY_REPO:$PUSHY_BRANCH" && return 0
 
     # remember current repo settings
     local REPO_DIR=$GIT_DIR
