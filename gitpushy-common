@@ -24,7 +24,7 @@ gitpushy-build() {
     echo "GitPushy - Building $PUSHY_REPO:$PUSHY_BRANCH at $HOSTNAME:$PUSHY_BUILD_DIR"
 
     # build rsync command (complex because we honor gitattributes
-    PUSHY_SYNC="rsync -a --exclude='.git*' $(gitpushy-cat .gitattributes|grep export-ignore|cut -d' ' -f1|tr '\n' '\0' | xargs -0 -I {} echo "--exclude='{}'" | tr '\n' ' ')"
+    PUSHY_SYNC="rsync -a --exclude='.git*' $(gitpushy-cat .gitattributes|grep export-ignore|cut -d' ' -f1|tr '\n' '\0' | xargs -0 -I {} echo "--exclude='{}'" | tr '\n' ' ') --delete"
 
     # Rsync files to PUSHY_STAGE_DIR
     if [ $PUSHY_REMOTE = 0 ]; then
@@ -118,7 +118,7 @@ gitpushy-deploy() {
     echo 'rm -rf $PUSHY_DEPLOY_DIR' >> $IO_CMD
     echo 'cd "$PUSHY_STAGE_DIR"' >> $IO_CMD
     echo '[ $? != 0 ] && echo "No stage directory: $PUSHY_STAGE_DIR" >&2 && exit 404' >> $IO_CMD
-    echo 'rsync -a --exclude='gitpushy-*' "$PUSHY_STAGE_DIR/" "$PUSHY_DEPLOY_DIR/"' >> $IO_CMD
+    echo 'rsync -a --exclude='gitpushy-*' "$PUSHY_STAGE_DIR/" "$PUSHY_DEPLOY_DIR/" --delete' >> $IO_CMD
     echo 'cd "$PUSHY_DEPLOY_DIR"' >> $IO_CMD
     echo '[ $? != 0 ] && echo "Deployment failed to $PUSHY_DEPLOY_DIR" >&2 && exit 404' >> $IO_CMD
     gitpushy-script deploy $1 >> $IO_CMD
