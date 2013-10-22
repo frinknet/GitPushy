@@ -215,9 +215,7 @@ internally by GitPushy to check for GitPushy script files. An empty string will 
 GitPushy Branch Hooks
 --------
 When *.gitpushy-custom* is not desired or if you wish to avoid shipping the custom script with the repsitory for security reasons you can put
-your custom script in the git hooks directory as a branch hook file *gitpushy-{branch}-branch*.
-
-This will be called in place of the **main** trigger.
+your custom script in the git hooks directory as a branch hook file *gitpushy-{branch}-branch* that will be called in place of the **main** trigger.
 
 This hook is run in the **$PUSHY_BUILD_DIR** in a fresh git clone in place of the traditional GitPushy dot files. Since this file
 is not contained within the version control system it can rendered inopperatable if changed or deleted. You may want to keep a separate repository with brnach hooks for your repositories.
