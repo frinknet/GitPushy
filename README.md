@@ -149,24 +149,24 @@ GitPushy Scripting Commands
 --------
 When writing advanced deployments the following commands can be useful to scult your deployment process. They are only available in the config and
 custom sections of deployment. In most cases you will want to avoid using these in the config section and only use them in the
-*.gitpushy-{trigger}-custom* script. However, certain commands like **gitpushy-server-is-local** may be useful even in your *.gitpushy-{trigger}-config*
+*.gitpushy-custom* script. However, certain commands like **gitpushy-server-is-local** may be useful even in your *.gitpushy-{trigger}-config*
 file.
 
-* **gitpushy-trigger {deployment}** - Trigger a new GitPushy deployment. This should only really be used inside of a *.gitpushy-{trigger}-custom* script
+* **gitpushy-trigger {trigger}** - Start a new GitPushy trigger. This should only really be used inside of a *.gitpushy-custom* script
 since the usual way to call extra deployments is through the **$PUSHY_TRIGGERS** variable. This call will wipe and repopulate the **$PUSHY_BUILD_DIR**.
-If you wish to keep the same build directory it is better to use the sectional calls **gitpushy-build {deployment}**, **gitpushy-stage {deployment}** and
-**gitpushy-deploy {deployment}**.
-* **gitpushy-build {deployment}** - Calls the *.gitpushy-build* and *.gitpushy-{trigger}-build* scripts. This can be used in custom scripting or where a
+If you wish to keep the same build directory it is better to use the sectional calls **gitpushy-build {trigger}**, **gitpushy-stage {trigger}** and
+**gitpushy-deploy {trigger}**.
+* **gitpushy-build {trigger}** - Calls the *.gitpushy-build* scripts. This can be used in custom scripting or where a
 conditional build process may be necessary. For example:
 
         [ passed_error_checks ] && gitpushy-build uat
 
-* **gitpushy-stage {deployment}** - Calls the *.gitpushy-stage* and *.gitpushy-{trigger}-stage*. This is really only useful when called from within
+* **gitpushy-stage {trigger}** - Calls the *.gitpushy-stage*. This is really only useful when called from within
 custom scripting where it is necessary to change the call order of the scripts:
 
         gitpushy-stage $PUSHY_DEPLOYMENT && gitpushy-stage unit-testing
 
-* **gitpushy-deploy {deployment}** - Calls the *.gitpushy-deploy* and *.gitpushy-{trigger}-deploy* scripts. This is really only useful when called from
+* **gitpushy-deploy {trigger}** - Calls the *.gitpushy-deploy* scripts. This is really only useful when called from
 within custom scripting where it is necessary to change the call order of the scripts.
 
         gitpushy-deploy $PUSHY_DEPLOYMENT && gitpushy-deploy backup
@@ -175,20 +175,36 @@ within custom scripting where it is necessary to change the call order of the sc
 deployments of another. This is used internally to deploy the commited branches like normal. This will trigger a fresh deployment process of the branch.
 NOTE: If you call **gitpushy-push-branch $PUSHY_BRANCH** without changing the variable from your current branch you will end up in an endless loop.
 
-* **gitpushy-push-replicate {server} {server ...}** - This is ment to be run in the build stage where each replication is put in its own branch with the
+* **gitpushy-push-replicate {hostname} [ {hostname} ...]** - This is ment to be run in the build stage where each replication is put in its own branch with the
 same name as the server who it pushed to and replicated from. Note that replication may trigger gitpushy on the remote server if GitPushy is installed
 there too. You can prevent continous replication by testing:
 
         [ "$(gitpushy-committer)" = "GitPushy" ] && return 0
 
-* **gitpushy-show {file} {file}** - This works like cat inside of gitpushy allowing you to create variables from the contents of files. This is used
+* **gitpushy-script {type} [ {trigger} [ {section} ]]** - Echo a string of the GitPushy dot files matching the criteria. For example:
+
+    PUSHY_MYSTAGE="$(gitpushy-script mystage $PUSHY_TRIGGER)"
+
+    **Would return the content of the following files:**
+    .gitpushy-mystage
+    .gitpushy-mystage-$PUSHY_BRANCH
+    .gitpushy-$PUSHY_TRIGGER-mystage
+    .gitpushy-$PUSHY_TRIGGER-mystage-$PUSHY_BRANCH
+
+* **gitpushy-cat {file} [ {file} ...]** - This works like cat inside of gitpushy allowing you to create variables from the contents of files. This is used
 internally by GitPushy to check for GitPushy script files. An empty string will be returned if the file does not exist.
+
 * **gitpushy-committer** - Show the last comitter for the current branch.
+
 * **gitpushy-branch-name** - Show the branch name of the current selected branch. This is for cases where multiple branches are used in the
 **$PUSHY_BUILD_DIR** to make sure that the right one is selected.
-* **gitpushy-server-ip** - Show the resoved IP of a server name
+
+* **gitpushy-server-ip {hostname}** - Show the resoved IP of a server name
+
 * **gitpushy-local-ips** - Show a list of IPs that reference the current machine. 
+
 * **gitpushy-in-array {string} {array}** - Checks if a certain string is in a specified array.
+
 * **gitpushy-server-is-local {server}** - Checks if a server is local or remote. The following code is similar to the code in
 **gitpushy-push-replicate**:
 

@@ -41,7 +41,7 @@ gitpushy-init() {
 ##
 # Start a GitPushy Trigger
 #
-# @usage gitpushy-trigger [trigger]
+# @usage gitpushy-trigger {trigger}
 #
 gitpushy-trigger() {
     # check pushy status
@@ -136,7 +136,7 @@ gitpushy-trigger() {
 ##
 # Building step of a GitPushy Trigger
 #
-# @usage gitpushy-build [trigger]
+# @usage gitpushy-build {trigger}
 #
 gitpushy-build() {
     # check pushy status
@@ -186,7 +186,7 @@ gitpushy-build() {
 ##
 # Staging step of a GitPushy Trigger
 #
-# @usage gitpushy-stage [trigger]
+# @usage gitpushy-stage {trigger}
 #
 gitpushy-stage() {
     # check pushy status
@@ -228,7 +228,7 @@ gitpushy-stage() {
 ##
 # Deployment step of a GitPushy Trigger
 #
-# @usage gitpushy-deploy [trigger]
+# @usage gitpushy-deploy {trigger}
 #
 gitpushy-deploy() {
     # check pushy status
@@ -280,7 +280,7 @@ gitpushy-deploy() {
 ##
 # Run GitPushy triggers for a given branch
 #
-# @usage gitpushy-push-branch [branch]
+# @usage gitpushy-push-branch {branch}
 #
 gitpushy-push-branch() {
     # Export pushy variables to main environment
@@ -351,7 +351,7 @@ gitpushy-push-branch() {
 ##
 # Replicate to another Server
 #
-# @usage gitpushy-push-replicate [hostname]
+# @usage gitpushy-push-replicate {hostname} [ {hostname} ...]
 #
 gitpushy-push-replicate() {
     [ -z "$1" ] && return 402
@@ -394,7 +394,7 @@ gitpushy-push-replicate() {
 ##
 # Create a temp directory with a clone
 #
-# @usage gitpushy-clone-temp [dir]
+# @usage gitpushy-clone-temp {dir}
 #
 gitpushy-clone-temp() {
     local CLONE_STATUS=0
@@ -422,7 +422,7 @@ gitpushy-clone-temp() {
 ##
 # Clean a given temp dir and switch back to original call directory
 #
-# @usage gitpushy-clean-temp
+# @usage gitpushy-clean-temp {dir}
 #
 gitpushy-clean-temp() {
     local CLEAN_STATUS=0
@@ -450,7 +450,7 @@ gitpushy-clean-temp() {
 ##
 # Cat GitPushy dot scripts
 #
-# @usage gitpushy-script [type] [[trigger] [[section]]]
+# @usage gitpushy-script {type} [ {trigger} [ {section} ]]
 #
 gitpushy-script() {
     [ -z "$PUSHY_BRANCH" ] && PUSHY_BRANCH=$(gitpushy-branch-name)
@@ -461,9 +461,9 @@ gitpushy-script() {
 }
 
 ##
-# Cat files(s) from the current branch
+# Cat files(s) from the current branch if they exist
 #
-# @usage gitpushy-cat [files]
+# @usage gitpushy-cat {file} [ {file} ...]
 #
 gitpushy-cat() {
     [ -z "$PUSHY_BRANCH" ] && PUSHY_BRANCH=$(gitpushy-branch-name)
@@ -497,7 +497,7 @@ gitpushy-committer() {
 ##
 # Find the IP of a given server
 #
-# @usage gitpushy-server-ip [hostname]
+# @usage gitpushy-server-ip {hostname}
 #
 gitpushy-server-ip() {
     ping -c 1 $1 | grep -Po -m 1 '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}';
@@ -515,7 +515,7 @@ gitpushy-local-ips() {
 ##
 # Check whether a given string is in an array
 #
-# @usage gitpushy-in-array [needle] [haystack]
+# @usage gitpushy-in-array {needle} {haystack}
 #
 gitpushy-in-array() {
     local x
@@ -530,7 +530,7 @@ gitpushy-in-array() {
 ##
 # Checks whether a given server is localhost
 #
-# @usage gitpushy-server-is-local [hostname]
+# @usage gitpushy-server-is-local {hostname}
 #
 gitpushy-server-is-local() {
     if gitpushy-in-array "$(gitpushy-server-ip $1)" $(gitpushy-local-ips); then
