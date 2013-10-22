@@ -1,29 +1,38 @@
-GitPushy - A Simple Deployment Framework
+A Simple Deployment Framework
 ========
 
 GitPushy is a siplified framework to aid in scripting [continuous deployment] [cd] and [continuous integration] [ci] directly from a git push without the need
 for external software or the limits of additional coniguration languages. At it's core, GitPushy is simply a Bash framework for [CD] [cd] and [CI] [ci] without a lot of needless fluff.
 
-Deployments should be simple. Send a git commit, deploy updates to intended servers.
-Different branches represent different stages of application development. Git branch access determins deployment access. Commiting to a certain branch
-triggers deployment on that branch. Deployments happen from multiple servers to multiple servers. Using git hooks allows us to capitalize on the distributed
-nature of git to enhance deployment. Manual deployments use bash from the command line so we might as well write the entire deployment engine in Bash to
-avoid duplicating the effort.
+Philosophy
+--------
+Deployments should be simple. Send a git commit to a given branch deploys updates to the intended servers.
 
+ * Different branches represent different stages of application development.
+ * Git branch access determins deployment access.
+ * Commiting to a certain branch triggers deployment on that branch.
+ * Deployments happen from multiple servers to multiple servers.
+ * Using git hooks allows us to capitalize on the distributed nature of git to enhance deployment.
+ * A deployment framework written in Bash will leverage most manual deployment processes.
 
 Instalation
 --------
 GitPushy is triggered from the git *post_receive* hook. It uses this hook to trigger it's own deployment process, stage and deploy source code to a working
-application environment. To install GitPushy simply copy the *gitpushy-common* to the git hooks directory and copy the contents of *post-receive* to your git
+application environment. GitPushy is not a complete solution for  To install GitPushy simply copy the *gitpushy-common* to the git hooks directory and copy the contents of *post-receive* to your git
 hooks folder.
 
 
 Anatomy of GitPushy Deployment
 --------
 
-Each GitPushy deployment are devided into four sections: *config*, *build*, *stage*, *deploy*. A fifth *custom* section can be added in place of the *build*,
-*stage* and *deploy* sections to empower complex deployment processes. Initially GitPushy triggers the main deployment. You can trigger other deployments by
-adding them to the **$PUSHY_TRIGGERS** variable or by calling **gitpushy_trigger** directly.
+Each GitPushy deployment are devided into four sections:
+
+ * *config*
+ * *build*
+ * *stage*
+ * *deploy*
+
+A fifth *custom* section can be added in place of the *build*, *stage* and *deploy* sections to empower complex deployment processes. Initially GitPushy triggers the main deployment. You can trigger other deployments by adding them to the **$PUSHY_TRIGGERS** variable or by calling **gitpushy_trigger** directly.
 
 When GitPushy is triggered everything starts with the main deployment. The following files are run if they exist:
 
