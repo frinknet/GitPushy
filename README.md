@@ -69,7 +69,7 @@ GitPushy Config Script
 --------
 The Config stage is intended to set key variables necesary for making a pushy deployment possible. The most simple version of this script consists of
 setting the **$PUSHY_DEPLOY_DIR** variable to the place where your final code will reside. Without specyfying this directory nothing will be done to deploy
-unless you have a *.gitpushy-{trigger}-custom* script for your GitPushy deployment. There are many other variables that can be set in this section. See
+unless you have a *.gitpushy-custom* script for your GitPushy deployment. There are many other variables that can be set in this section. See
 GitPushy Scripting Variables for more info.
 
 
@@ -78,7 +78,7 @@ GitPushy Build Script
 In the build section GitPushy creates a clean clone of a git repository and deposits it in the specified **$PUSHY_BUILD_DIR**. The clone is set to the
 branch being deployed to it's latest commits. Then the build script is run to do any of the heavy lifting necessary in the bundling of code.
 
-If this process is rather strenuous and time consuming it may be better to run these detatched from a *.gitpushy-{trigger}-custom* script to avoid
+If this process is rather strenuous and time consuming it may be better to run these detatched from a *.gitpushy-custom* script to avoid
 monopolizing the git commit process. See more on GitPushy Custom Script.
 
 In most cases where GitPushy is used to deploy websites this script will be used to move files to their proper location and possibly delete files
