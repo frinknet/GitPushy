@@ -135,8 +135,8 @@ Git Pushy comes with a short list of configuration variables to make it easy to 
  * **$PUSHY_BUILD_DIR** - [String] Specifies the directory where build activity should take place 
  * **$PUSHY_STAGE_DIR** - [String] Specifies the directory where staging activity should take place
  * **$PUSHY_DEPLOY_DIR** - [String] Specifies the directory where deployment activity should take place
- * **$PUSHY_DEPLOYMENT** - [String] Current process being run
  * **$PUSHY_TRIGGERS** - [Array] All triggers to be run
+ * **$PUSHY_TRIGGER** - [String] Current trigger being run
  * **$PUSHY_PORT** - [Number] Remote port to connect in order to stage and deploy files
  * **$PUSHY_REMOTE** - [Boolean] whether or not deployment is to a remote server
  * **$PUSHY_SERVER** - [String] Server hostname to use when staging and deploying
@@ -149,8 +149,8 @@ GitPushy Scripting Commands
 --------
 When writing advanced deployments the following commands can be useful to scult your deployment process. They are only available in the config and
 custom sections of deployment. In most cases you will want to avoid using these in the config section and only use them in the
-*.gitpushy-custom* script. However, certain commands like **gitpushy-server-is-local** may be useful even in your *.gitpushy-{trigger}-config*
-file.
+*.gitpushy-custom* script. However, certain commands like **gitpushy-server-is-local** may be useful even in your *.gitpushy-config*
+script.
 
 * **gitpushy-trigger {trigger}** - Start a new GitPushy trigger. This should only really be used inside of a *.gitpushy-custom* script
 since the usual way to call extra deployments is through the **$PUSHY_TRIGGERS** variable. This call will wipe and repopulate the **$PUSHY_BUILD_DIR**.
@@ -164,12 +164,12 @@ conditional build process may be necessary. For example:
 * **gitpushy-stage {trigger}** - Calls the *.gitpushy-stage*. This is really only useful when called from within
 custom scripting where it is necessary to change the call order of the scripts:
 
-        gitpushy-stage $PUSHY_DEPLOYMENT && gitpushy-stage unit-testing
+        gitpushy-stage $PUSHY_TRIGGER && gitpushy-stage unit-testing
 
 * **gitpushy-deploy {trigger}** - Calls the *.gitpushy-deploy* scripts. This is really only useful when called from
 within custom scripting where it is necessary to change the call order of the scripts.
 
-        gitpushy-deploy $PUSHY_DEPLOYMENT && gitpushy-deploy backup
+        gitpushy-deploy $PUSHY_TRIGGER && gitpushy-deploy backup
 
 * **gitpushy-push-branch {branch}** - Calls for the GitPushy deployment of the specified branch. This is useful where commits to one branch control
 deployments of another. This is used internally to deploy the commited branches like normal. This will trigger a fresh deployment process of the branch.
@@ -185,11 +185,12 @@ there too. You can prevent continous replication by testing:
 
         PUSHY_MYSTAGE="$(gitpushy-script mystage $PUSHY_TRIGGER)"
 
-        **Would return the content of the following files:**
-        .gitpushy-mystage
-        .gitpushy-mystage-$PUSHY_BRANCH
-        .gitpushy-$PUSHY_TRIGGER-mystage
-        .gitpushy-$PUSHY_TRIGGER-mystage-$PUSHY_BRANCH
+        # The above will return the content of the following files:
+        #
+        #   .gitpushy-mystage
+        #   .gitpushy-mystage-$PUSHY_BRANCH
+        #   .gitpushy-$PUSHY_TRIGGER-mystage
+        #   .gitpushy-$PUSHY_TRIGGER-mystage-$PUSHY_BRANCH
 
 * **gitpushy-cat {file} [ {file} ...]** - This works like cat inside of gitpushy allowing you to create variables from the contents of files. This is used
 internally by GitPushy to check for GitPushy script files. An empty string will be returned if the file does not exist.
@@ -203,7 +204,7 @@ internally by GitPushy to check for GitPushy script files. An empty string will 
 
 * **gitpushy-local-ips** - Show a list of IPs that reference the current machine. 
 
-* **gitpushy-in-array {string} {array}** - Checks if a certain string is in a specified array.
+* **gitpushy-in-array {needle} {haystack}** - Checks if a certain string is in a specified array.
 
 * **gitpushy-server-is-local {server}** - Checks if a server is local or remote. The following code is similar to the code in
 **gitpushy-push-replicate**:
@@ -213,11 +214,15 @@ internally by GitPushy to check for GitPushy script files. An empty string will 
 
 GitPushy Branch Hooks
 --------
-When *.gitpushy-{trigger}-custom* is not desired or when you wish to avoid shipping the custom script with the repsitory for some reason you can put
-your custom script in the git hooks directory as a file *gitpushy-{branch}-branch*. This will be called like a custom script but without running the
-config files first. This hook is run in the **$PUSHY_BUILD_DIR** in a fresh git clone in place of the traditional _.gitpushy-*_ files. Since this file
-is not versioned it should be managed from another repository somewhere else. Also, you should be careful about installing this in *.gitolite/hooks/common*
-since it will run based on branch name.
+When *.gitpushy-custom* is not desired or if you wish to avoid shipping the custom script with the repsitory for security reasons you can put
+your custom script in the git hooks directory as a branch hook file *gitpushy-{branch}-branch*.
+
+This will be called in place of the **main** trigger.
+
+This hook is run in the **$PUSHY_BUILD_DIR** in a fresh git clone in place of the traditional GitPushy dot files. Since this file
+is not contained within the version control system it can rendered inopperatable if changed or deleted. You may want to keep a separate repository with brnach hooks for your repositories.
+
+Also, you should be careful about installing this in *.gitolite/hooks/common* since it will run based on branch name.
 
 [CD]: http://en.wikipedia.org/wiki/Continuous_deployment "Wikipedia: Continuous Deployment"
 [CI]: http://en.wikipedia.org/wiki/Continuous_integration "Wikipedia: Continuous Integration"
