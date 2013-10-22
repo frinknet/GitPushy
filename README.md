@@ -27,18 +27,19 @@ Anatomy of GitPushy Deployment
 
 Each GitPushy deployment are devided into four sections:
 
- * *config*
- * *build*
- * *stage*
- * *deploy*
+ * *config* - Setup configuration variables
+ * *build* - Build the code on the local server
+ * *stage* - Stage the code on a remote server
+ * *deploy* - Deploy the staged code to new environment
 
 A fifth *custom* section can be added in place of the *build*, *stage* and *deploy* sections to empower complex deployment processes. Initially GitPushy triggers the main deployment. You can trigger other deployments by adding them to the **$PUSHY_TRIGGERS** variable or by calling **gitpushy_trigger** directly.
 
-When GitPushy is triggered everything starts with the main deployment. The following files are run if they exist:
+When GitPushy is triggered everything starts with the *main* GitPushy Trigger. The following files are run if they exist:
 
     .gitpushy-config
     .gitpushy-main-config
     .gitpushy-main-custom*
+
     .gitpushy-build
     .gitpushy-main-build
     .gitpushy-stage
