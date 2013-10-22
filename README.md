@@ -2,18 +2,19 @@ A Simple Deployment Framework
 ========
 
 GitPushy is a siplified framework to aid in scripting [continuous deployment] [cd] and [continuous integration] [ci] directly from a git push without the need
-for external software or the limits of additional coniguration languages. At it's core, GitPushy is simply a Bash framework for [CD] [cd] and [CI] [ci] without a lot of needless fluff.
+for external software or the limits of additional, and often esoteric, configuration languages. At it's core, GitPushy is simply a Bash framework for [CD] [cd] and [CI] [ci] without a lot of needless fluff. Some of the features of GitPushy include:
 
-Philosophy
---------
+ * Git branch access determins deployment access
+ * Different branches are deployed separately
+ * Distributed deployment from multiple servers to multiple servers
+ * Extensible framework written in Bash can leverage manual processes
+ * Rsync allows for easy transport security betwen servers
+ * Zipped backups make deployment rollbacks easier
+ * Build on one machine stage and deploy on another
+ * Staging before deploy allows for migration scripts to run
+ * Staging and deployment scripts are never stored on deployment servers
+
 Deployments should be simple. Send a git commit to a given branch deploys updates to the intended servers.
-
- * Different branches represent different stages of application development.
- * Git branch access determins deployment access.
- * Commiting to a certain branch triggers deployment on that branch.
- * Deployments happen from multiple servers to multiple servers.
- * Using git hooks allows us to capitalize on the distributed nature of git to enhance deployment.
- * A deployment framework written in Bash will leverage most manual deployment processes.
 
 Instalation
 --------
