@@ -183,13 +183,13 @@ there too. You can prevent continous replication by testing:
 
 * **gitpushy-script {type} [ {trigger} [ {section} ]]** - Echo a string of the GitPushy dot files matching the criteria. For example:
 
-    PUSHY_MYSTAGE="$(gitpushy-script mystage $PUSHY_TRIGGER)"
+        PUSHY_MYSTAGE="$(gitpushy-script mystage $PUSHY_TRIGGER)"
 
-    **Would return the content of the following files:**
-    .gitpushy-mystage
-    .gitpushy-mystage-$PUSHY_BRANCH
-    .gitpushy-$PUSHY_TRIGGER-mystage
-    .gitpushy-$PUSHY_TRIGGER-mystage-$PUSHY_BRANCH
+        **Would return the content of the following files:**
+        .gitpushy-mystage
+        .gitpushy-mystage-$PUSHY_BRANCH
+        .gitpushy-$PUSHY_TRIGGER-mystage
+        .gitpushy-$PUSHY_TRIGGER-mystage-$PUSHY_BRANCH
 
 * **gitpushy-cat {file} [ {file} ...]** - This works like cat inside of gitpushy allowing you to create variables from the contents of files. This is used
 internally by GitPushy to check for GitPushy script files. An empty string will be returned if the file does not exist.
