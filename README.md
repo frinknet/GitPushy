@@ -37,17 +37,29 @@ A fifth *custom* section can be added in place of the *build*, *stage* and *depl
 When GitPushy is triggered everything starts with the *main* GitPushy Trigger. The following files are run if they exist:
 
     .gitpushy-config
-    .gitpushy-main-config
-    .gitpushy-main-custom*
+    .gitpushy-config-{branch}
+    .gitpushy-{trigger}-config
+    .gitpushy-{trigger}-config-{branch}
+
+    .gitpushy-{trigger}-custom*
+    .gitpushy-{trigger}-custom-{branch}*
 
     .gitpushy-build
-    .gitpushy-main-build
-    .gitpushy-stage
-    .gitpushy-main-stage
-    .gitpushy-deploy
-    .gitpushy-main-deploy
+    .gitpushy-build-{branch}
+    .gitpushy-{trigger}-build
+    .gitpushy-{trigger}-build-{branch}
 
-NOTE: If the file .gitpushy-main-custom exists none of the other stages are called unless the custom script calls them specifically.
+    .gitpushy-stage
+    .gitpushy-stage-{branch}
+    .gitpushy-{trigger}-stage
+    .gitpushy-{trigger}-stage-{branch}
+
+    .gitpushy-deploy
+    .gitpushy-deploy-{branch}
+    .gitpushy-{trigger}-deploy
+    .gitpushy-{trigger}-deploy-{branch}
+
+NOTE: If any of the *custom* scripts exist none of the other stage scripts are called unless the custom script calls them specifically.
 
 There are both general and deployment-specific parts to each stage. The general part of the stage is always run first followed by the deployment-specific
 level code. If the config section specifies more deployments in the **$PUSHY_TRIGGERS** variable these will be run after the main deploymenthas finished
