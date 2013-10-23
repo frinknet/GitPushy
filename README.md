@@ -221,7 +221,7 @@ your custom script in the git hooks directory as a branch hook file *gitpushy-{b
 This hook is run in the **$PUSHY_BUILD_DIR** in a fresh git clone in place of the traditional GitPushy dot files. Since this file
 is not contained within the version control system it can rendered inopperatable if changed or deleted. You may want to keep a separate repository with brnach hooks for your repositories.
 
-Also, you should be careful about installing this in *.gitolite/hooks/common* since it will run based on branch name.
+Also, you should be careful about installing this in *.gitolite/hooks/common* since it will run based on branch name accross projects. Instead install in a particular repository hook folder to insure that you do not trigger unwanted results.
 
 [CD]: http://en.wikipedia.org/wiki/Continuous_deployment "Wikipedia: Continuous Deployment"
 [CI]: http://en.wikipedia.org/wiki/Continuous_integration "Wikipedia: Continuous Integration"
