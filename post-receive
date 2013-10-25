@@ -1,6 +1,10 @@
 #!/bin/bash
 
+# store STDIN for multiple use later
 STDIN=$(cat -)
 
+# include GitPushy common functions
 source hooks/gitpushy-common
+
+# start GitPushy
 echo "$STDIN" | gitpushy-init $GL_REPO
