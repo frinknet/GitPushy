@@ -6,5 +6,10 @@ STDIN=$(cat -)
 # include GitPushy common functions
 source hooks/gitpushy-common
 
-# start GitPushy
-echo "$STDIN" | gitpushy-init $GL_REPO
+# initialize GitPushy
+echo "$STDIN" | gitpushy-init
+
+# You can call more post-receive hooks the same way
+#
+#   echo "$STDIN" | your-post-receive
+#
