@@ -19,8 +19,9 @@ Deployments should be simple. Send a git commit to a given branch deploys update
 Instalation
 --------
 GitPushy is triggered from the git *post_receive* hook. It uses this hook to trigger it's own deployment process, stage and deploy source code to a working
-application environment. GitPushy is not a complete solution for  To install GitPushy simply copy the *gitpushy-common* to the git hooks directory and copy the contents of *post-receive* to your git
-hooks folder.
+application environment. GitPushy is not a complete solution for [continuous deployment] [cd] or [continuous integration] [ci] but is meant to be a framework for writing easy deployments and integrations.
+
+To install GitPushy simply copy the *gitpushy-common* and *post-receive* to the git hooks folder on the git server. If you already have a *post-recieve* hook you can copy the necessary content from the provided post-recieve hook to install.
 
 
 Anatomy of GitPushy Deployment
