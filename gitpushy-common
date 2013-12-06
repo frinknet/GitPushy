@@ -13,10 +13,12 @@
 # @usage gitpushy-init
 #
 gitpushy-init() {
+    # set PUSHY variables
     export PUSHY_REPO=""
     export PUSHY_BRANCH=""
     export PUSHY_BRANCHES=()
 
+    # Make sure PUSHY_REPO is set
     [ -z "$PUSHY_REPO" ] && if [ $(git rev-parse --is-bare-repository) = true ]; then
         PUSHY_REPO=$(basename "$PWD")
         PUSHY_REPO=${PUSHY_REPO%.git}
