@@ -1,8 +1,7 @@
 A Simple Deployment Framework
 ========
 
-GitPushy is a simple framework to aid in scripting [continuous deployment] [cd] and [continuous integration] [ci] directly from a git push without the need
-for external software or the limits of additional, and often esoteric, configuration languages. At it's core, GitPushy is simply a Bash framework for [CD] [cd] and [CI] [ci] without a lot of needless fluff. Some of the features of GitPushy include:
+GitPushy is a simple framework to aid in scripting [continuous deployment] [cd] and [continuous integration] [ci] directly from a git push without a large software stack or the limits of additional, and often esoteric, configuration languages. At it's core, GitPushy is simply a Bash framework for [CD] [cd] and [CI] [ci] without a lot of fluff. Features include:
 
  * Git branch access determins deployment access
  * Different branches are deployed separately
