@@ -364,8 +364,22 @@ gitpushy-push-branch() {
     [ -z "$PUSHY_BRANCH" ] && "BRANCH was not passed to gitpushy-push-branch" && return 1
     [ ! -f $GIT_DIR/refs/heads/$PUSHY_BRANCH ] && echo "$PUSHY_BRANCH does not exist in $PUSHY_REPO" && return 1
 
+    # prepare pushy config script
+    PUSHY_CONFIG="$(gitpushy-script config main)"
+    PUSHY_CUSTOM="$(gitpushy-script custom main)"
+
     # check if this branch has gitpushy data
-    [ ! -f $GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch ] && [ -z "$(gitpushy-script config main;gitpushy-script custom main)" ] && echo "No GitPushy for $PUSHY_REPO:$PUSHY_BRANCH" && return 0
+    [ ! -f $GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch ] && [ -z "$PUSHY_CONFIG$PUSHY_CUSTOM" ] && echo "No GitPushy for $PUSHY_REPO:$PUSHY_BRANCH" && return 0
+
+    local IO_OUT=gitpushy-$1-config.output
+    local IO_ERR=gitpushy-$1-config.error
+
+    # run config scripts for deployment
+    eval "$PUSHY_CONFIG" 1> >(tee $IO_OUT) 2> >(tee $IO_ERR)> >(tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-config - {}")
+
+    # capture exit status
+    PUSHY_STATUS=$?
+    [ $PUSHY_STATUS = 0 ] && [ -s $IO_ERR ] && PUSHY_STATUS=500
 
     # remember current repo settings
     local REPO_DIR=$GIT_DIR
