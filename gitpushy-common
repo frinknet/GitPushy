@@ -57,6 +57,9 @@ gitpushy-trigger() {
     # return 404 if script doesnt exist
     [ -z "$PUSHY_CONFIG$PUSHY_CUSTOM" ] && return 404
 
+    local IO_OUT=gitpushy-$1-config.output
+    local IO_ERR=gitpushy-$1-config.error
+
     # run config scripts for deployment
     eval "$PUSHY_CONFIG" 1> >(tee $IO_OUT) 2> >(tee $IO_ERR)> >(tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-config - {}")
 
