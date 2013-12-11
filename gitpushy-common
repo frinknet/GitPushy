@@ -71,11 +71,14 @@ gitpushy-trigger() {
     [ "$PUSHY_SERVER" != "$(hostname)" ] && PUSHY_REMOTE=1
 
     # setup pushy environment variables
-    export PUSHY_ENV="
+    export PUSHY_ENV="    # $PUSHY_BRANCH $PUSHY_TRIGGER config $(echo; echo "$PUSHY_CONFIG" | tr '\n' '\0' | xargs -0 -I {} echo "    {}")
+
+    # extended environment variables
     PUSHY_BUILD_DIR="$(echo "$PUSHY_BUILD_DIR" | sed 's/^~/$HOME/')"
     PUSHY_STAGE_DIR="$(echo "$PUSHY_STAGE_DIR" | sed 's/^~/$HOME/')"
     PUSHY_DEPLOY_DIR="$(echo "$PUSHY_DEPLOY_DIR" | sed 's/^~/$HOME/')"
     PUSHY_DEPLOY_ARCHIVE="$(echo "$PUSHY_DEPLOY_ARCHIVE" | sed 's/^~/$HOME/')"
+    PUSHY_DEPLOY_HOTSWAP='$PUSHY_DEPLOY_HOTSWAP'
     PUSHY_VERBOSE='$PUSHY_VERBOSE'
     PUSHY_SERVER='$PUSHY_SERVER'
     PUSHY_REMOTE='$PUSHY_REMOTE'
