@@ -58,11 +58,11 @@ gitpushy-trigger() {
     [ -z "$PUSHY_CONFIG$PUSHY_CUSTOM" ] && return 404
 
     # run config scripts for deployment
-    eval "$PUSHY_CONFIG" 1> >(tee gitpushy-$1-config.output) 2> >(tee gitpushy-$1-config.error)> >(tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-config: {}")
+    eval "$PUSHY_CONFIG" 1> >(tee $IO_OUT) 2> >(tee $IO_ERR)> >(tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-config - {}")
 
     # capture exit status
     PUSHY_STATUS=$?
-    [ $PUSHY_STATUS = 0 ] && [ -s gitpushy-$1-config.error ] && PUSHY_STATUS=500
+    [ $PUSHY_STATUS = 0 ] && [ -s $IO_ERR ] && PUSHY_STATUS=500
 
     # set pushy remote vs local
     [ "$PUSHY_SERVER" != "$(hostname)" ] && PUSHY_REMOTE=1
@@ -288,6 +288,7 @@ gitpushy-deploy() {
 
     #prepare running
     echo "$PUSHY_ENV" > $IO_CMD
+    echo "$PUSHY_ENV" >> $IO_CMD
     echo "PUSHY_TRIGGER='$1'" >> $IO_CMD
     echo "PUSHY_STATUS='$PUSHY_STATUS'" >> $IO_CMD
     echo '[ $PUSHY_STATUS = 0 ] && gitpushy-setup' >> $IO_CMD
