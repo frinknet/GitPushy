@@ -97,15 +97,18 @@ gitpushy-trigger() {
         echo "GitPushy - Calling $DEPLOYMENT_RUN"
         echo "----------"
 
+        local IO_OUT=gitpushy-$1-custom.output
+        local IO_ERR=gitpushy-$1-custom.error
+
         # show commands run if verbosity is set
         [ $PUSHY_VERBOSE != 0 ] && echo "$PUSHY_CUSTOM" | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-custom: {}"
 
         # run custom script
-        (eval "$PUSHY_CUSTOM" 1> >(tee gitpushy-$1-custom.output) 2> >(tee gitpushy-$1-custom.error))
+        (eval "$PUSHY_CUSTOM" 1> >(tee $IO_OUT) 2> >(tee $IO_ERR))
 
         # capture exit status
         PUSHY_STATUS=$?
-        [ $PUSHY_STATUS = 0 ] && [ -s gitpushy-$1-custom.error ] && PUSHY_STATUS=500
+        [ $PUSHY_STATUS = 0 ] && [ -s $IO_ERR ] && PUSHY_STATUS=500
 
         echo "----------"
     elif [ -n "$PUSHY_DEPLOY_DIR" ]; then
@@ -326,12 +329,15 @@ gitpushy-push-branch() {
     if [ -f $REPO_BARE/hooks/gitpushy-$PUSHY_BRANCH-branch ]; then
         echo "GitPushy - Custom GitPushy Hook: pushy-$PUSHY_BRANCH-branch"
 
+        local IO_OUT=gitpushy-$1-branch.output
+        local IO_ERR=gitpushy-$1-branch.error
+
         # run branch hook
-        (source $REPO_BARE/hooks/gitpushy-$PUSHY_BRANCH-branch 1> >(tee gitpushy-$PUSHY_BRANCH-branch.output) 2> >(tee gitpushy-$PUSHY_BRANCH-branch.error))
+        (source $REPO_BARE/hooks/gitpushy-$PUSHY_BRANCH-branch 1> >(tee $IO_OUT) 2> >(tee $IO_ERR))
 
         # capture exit status
         PUSHY_STATUS=$?
-        [ -s gitpushy-$PUSHY_BRANCH-branch.error ] && PUSHY_STATUS=500
+        [ -s $IO_ERR ] && PUSHY_STATUS=500
     else
         # run main trigger
         gitpushy-trigger main
