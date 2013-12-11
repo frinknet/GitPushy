@@ -250,25 +250,15 @@ gitpushy-deploy() {
     local IO_OUT=gitpushy-$1-deploy.output
     local IO_ERR=gitpushy-$1-deploy.error
 
-    echo "GitPushy - Deploying $PUSHY_REPO:$PUSHY_BRANCH to $PUSHY_SERVER:$PUSHY_DEPLOY_DIR"
+    export PUSHY_SAME_DIR=""
 
-    # prepare gitpushy-setup
-    echo 'gitpushy-setup() {' >> $IO_CMD
-    echo 'cd "$PUSHY_DEPLOY_DIR"' >> $IO_CMD
-    echo 'if [ $? != 0 ]; then' >> $IO_CMD
-    echo 'echo "Deploying to blank directory: $PUSHY_DEPLOY_DIR"' >> $IO_CMD
-    echo 'elif [ -n "$PUSHY_DEPLOY_HOTSWAP" ]; then' >> $IO_CMD
-    echo 'OLD_HOTSWAP=$(readlink $PUSHY_DEPLOY_DIR)' >> $IO_CMD
-    echo 'elif [ -n "$PUSHY_DEPLOY_ARCHIVE" ]; then' >> $IO_CMD
-    echo 'tar czf "$PUSHY_DEPLOY_ARCHIVE.tgz" .' >> $IO_CMD
-    echo 'fi' >> $IO_CMD
     echo 'cd "$PUSHY_STAGE_DIR"' >> $IO_CMD
-    echo '[ $? != 0 ] && echo "No stage directory: $PUSHY_STAGE_DIR" >&2 && exit 404' >> $IO_CMD
-    echo 'rsync -a --exclude='gitpushy-*' "$PUSHY_STAGE_DIR/" "$PUSHY_DEPLOY_DIR$PUSHY_DEPLOY_HOTSWAP/" --delete' >> $IO_CMD
     echo 'if [ -n "$PUSHY_DEPLOY_HOTSWAP" ]; then' >> $IO_CMD
-    echo 'ln -sfn "$PUSHY_DEPLOY_DIR$PUSHY_DEPLOY_HOTSWAP" "$PUSHY_DEPLOY_DIR"' >> $IO_CMD
     echo 'fi' >> $IO_CMD
-    echo '}' >> $IO_CMD
+    [ $PUSHY_REMOTE = 0 ] && [ $PUSHY_BUILD_DIR = $PUSHY_DEPLOY_DIR ] && PUSHY_SAME_DIR="BUILD"
+    [ $PUSHY_STAGE_DIR = $PUSHY_DEPLOY_DIR ] && PUSHY_SAME_DIR="STAGE"
+
+    echo "GitPushy - Deploying $PUSHY_REPO:$PUSHY_BRANCH to $PUSHY_SERVER:$PUSHY_DEPLOY_DIR"
 
     # prepare gitpushy-transact
     echo 'gitpushy-transact() {' >> $IO_CMD
@@ -277,29 +267,58 @@ gitpushy-deploy() {
     gitpushy-script deploy $1 >> $IO_CMD
     echo '}' >> $IO_CMD
 
-    # prepare gitpushy-rollback
-    echo 'gitpushy-rollback() {' >> $IO_CMD
-    echo 'if [ -n "$OLD_HOTSWAP" ]; then' >> $IO_CMD
-    echo 'echo "Rolling back to previous hot swap $OLD_HOTSWAP"' >> $IO_CMD
-    echo 'ln -sfn "$OLD_HOTSWAP" "$PUSHY_DEPLOY_DIR"' >> $IO_CMD
-    echo 'gitpushy-transact' >> $IO_CMD
-    echo 'elif [ -f "$PUSHY_DEPLOY_ARCHIVE.tgz" ]; then' >> $IO_CMD
-    echo 'echo "Rolling back to previous $PUSHY_DEPLOY_ARCHIVE"' >> $IO_CMD
-    echo 'rm "$PUSHY_DEPLOY_DIR" > /dev/null' >> $IO_CMD
-    echo 'mkdir "$PUSHY_DEPLOY_DIR"' >> $IO_CMD
-    echo 'cd "$PUSHY_DEPLOY_DIR"' >> $IO_CMD
-    echo 'tar xzf "$PUSHY_DEPLOY_ARCHIVE.tgz" .' >> $IO_CMD
-    echo 'gitpushy-transact' >> $IO_CMD
-    echo 'fi' >> $IO_CMD
-    echo '}' >> $IO_CMD
+    if [ -z "$PUSHY_SAME_DIR" ]; then
+        # prepare gitpushy-setup
+        echo 'gitpushy-setup() {' >> $IO_CMD
+        echo 'cd "$PUSHY_DEPLOY_DIR" 2>/dev/null' >> $IO_CMD
+        echo 'if [ $? != 0 ]; then' >> $IO_CMD
+        echo 'echo "Deploying to blank directory: $PUSHY_DEPLOY_DIR"' >> $IO_CMD
+        echo 'elif [ -n "$PUSHY_DEPLOY_HOTSWAP" ]; then' >> $IO_CMD
+        echo 'OLD_HOTSWAP=$(readlink $PUSHY_DEPLOY_DIR)' >> $IO_CMD
+        echo 'elif [ -n "$PUSHY_DEPLOY_ARCHIVE" ]; then' >> $IO_CMD
+        echo 'tar czf "$PUSHY_DEPLOY_ARCHIVE.tgz" .' >> $IO_CMD
+        echo 'fi' >> $IO_CMD
+        echo 'cd "$PUSHY_STAGE_DIR" 2>/dev/null' >> $IO_CMD
+        echo '[ $? != 0 ] && echo "No stage directory: $PUSHY_STAGE_DIR" >&2 && exit 404' >> $IO_CMD
+        echo 'rsync -a --exclude='gitpushy-*' "$PUSHY_STAGE_DIR/" "$PUSHY_DEPLOY_DIR$PUSHY_DEPLOY_HOTSWAP/" --delete' >> $IO_CMD
+        echo 'if [ -n "$PUSHY_DEPLOY_HOTSWAP" ]; then' >> $IO_CMD
+        echo 'ln -sfn "$PUSHY_DEPLOY_DIR$PUSHY_DEPLOY_HOTSWAP" "$PUSHY_DEPLOY_DIR"' >> $IO_CMD
+        echo 'fi' >> $IO_CMD
+        echo '}' >> $IO_CMD
+
+        # prepare gitpushy-rollback
+        echo 'gitpushy-rollback() {' >> $IO_CMD
+        echo 'if [ -n "$OLD_HOTSWAP" ]; then' >> $IO_CMD
+        echo 'echo "Rolling back to previous hot swap $OLD_HOTSWAP"' >> $IO_CMD
+        echo 'ln -sfn "$OLD_HOTSWAP" "$PUSHY_DEPLOY_DIR"' >> $IO_CMD
+        echo 'gitpushy-transact' >> $IO_CMD
+        echo 'elif [ -f "$PUSHY_DEPLOY_ARCHIVE.tgz" ]; then' >> $IO_CMD
+        echo 'echo "Rolling back to previous $PUSHY_DEPLOY_ARCHIVE"' >> $IO_CMD
+        echo 'rm "$PUSHY_DEPLOY_DIR" 2>/dev/null' >> $IO_CMD
+        echo 'mkdir "$PUSHY_DEPLOY_DIR"' >> $IO_CMD
+        echo 'cd "$PUSHY_DEPLOY_DIR"' >> $IO_CMD
+        echo 'tar xzf "$PUSHY_DEPLOY_ARCHIVE.tgz" .' >> $IO_CMD
+        echo 'gitpushy-transact' >> $IO_CMD
+        echo 'fi' >> $IO_CMD
+        echo '}' >> $IO_CMD
+    fi
 
     #prepare running
     echo "$PUSHY_ENV" >> $IO_CMD
     echo "PUSHY_TRIGGER='$1'" >> $IO_CMD
     echo "PUSHY_STATUS='$PUSHY_STATUS'" >> $IO_CMD
-    echo '[ $PUSHY_STATUS = 0 ] && gitpushy-setup' >> $IO_CMD
-    echo '[ $PUSHY_STATUS = 0 ] && gitpushy-transact' >> $IO_CMD
-    echo '[ $PUSHY_STATUS != 0 ] && gitpushy_rollback' >> $IO_CMD
+
+    if [ -n "$PUSHY_SAME_DIR" ]; then
+        echo "echo 'Deploying in the $PUSHY_SAME_DIR directory'" >> $IO_CMD
+        echo "echo ' - no archiving'" >> $IO_CMD 
+        echo "echo ' - no hotswapping'" >> $IO_CMD 
+        echo "echo ' - no rollbacks'" >> $IO_CMD 
+        echo 'gitpushy-transact' >> $IO_CMD
+    else
+        echo '[ $PUSHY_STATUS = 0 ] && gitpushy-setup' >> $IO_CMD
+        echo '[ $PUSHY_STATUS = 0 ] && gitpushy-transact' >> $IO_CMD
+        echo '[ $PUSHY_STATUS != 0 ] && gitpushy_rollback' >> $IO_CMD
+    fi
     echo 'exit $PUSHY_STATUS' >> $IO_CMD
 
     # show commands run if verbosity is set
