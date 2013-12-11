@@ -457,7 +457,7 @@ gitpushy-clean-temp() {
 gitpushy-script() {
     [ -z "$PUSHY_BRANCH" ] && PUSHY_BRANCH=$(gitpushy-branch-name)
 
-    gitpushy-cat .gitpushy-$1 .gitpushy-$1-$PUSHY_BRANCH
+    gitpushy-cat .gitpushy/common/$1 .gitpushy/$PUSHY_BRANCH/$1
 
     [ -n "$2" ] && gitpushy-script $2-$1 ${@:3}
 }
