@@ -72,7 +72,7 @@ gitpushy-trigger() {
     PUSHY_BUILD_DIR="$(echo "$PUSHY_BUILD_DIR" | sed 's/^~/$HOME/')"
     PUSHY_STAGE_DIR="$(echo "$PUSHY_STAGE_DIR" | sed 's/^~/$HOME/')"
     PUSHY_DEPLOY_DIR="$(echo "$PUSHY_DEPLOY_DIR" | sed 's/^~/$HOME/')"
-    PUSHY_DEPLOY_BACKUP="$(echo "$PUSHY_DEPLOY_BACKUP" | sed 's/^~/$HOME/')"
+    PUSHY_DEPLOY_ARCHIVE="$(echo "$PUSHY_DEPLOY_ARCHIVE" | sed 's/^~/$HOME/')"
     PUSHY_VERBOSE='$PUSHY_VERBOSE'
     PUSHY_SERVER='$PUSHY_SERVER'
     PUSHY_REMOTE='$PUSHY_REMOTE'
@@ -249,8 +249,8 @@ gitpushy-deploy() {
     echo 'cd "$PUSHY_DEPLOY_DIR"' >> $IO_CMD
     echo 'if [ $? != 0 ]; then' >> $IO_CMD
     echo 'echo "Deploying to blank directory: $PUSHY_DEPLOY_DIR"' >> $IO_CMD
-    echo 'elif [ -n "$PUSHY_DEPLOY_BACKUP" ]; then' >> $IO_CMD
-    echo 'tar czf "$PUSHY_DEPLOY_BACKUP" .' >> $IO_CMD
+    echo 'elif [ -n "$PUSHY_DEPLOY_ARCHIVE" ]; then' >> $IO_CMD
+    echo 'tar czf "$PUSHY_DEPLOY_ARCHIVE" .' >> $IO_CMD
     echo 'fi' >> $IO_CMD
     echo 'rm -rf $PUSHY_DEPLOY_DIR' >> $IO_CMD
     echo 'cd "$PUSHY_STAGE_DIR"' >> $IO_CMD
@@ -286,7 +286,7 @@ gitpushy-deploy() {
 #
 gitpushy-push-branch() {
     # Export pushy variables to main environment
-    export PUSHY_DEPLOY_BACKUP="~/$PUSHY_REPO-$(date +%Y%m%d-%H%M%S).tgz"
+    export PUSHY_DEPLOY_ARCHIVE="~/$PUSHY_REPO-$(date +%Y%m%d-%H%M%S).tgz"
     export PUSHY_DEPLOY_DIR=""
     export PUSHY_BUILD_KEEP=""
     export PUSHY_BUILD_DIR="/tmp/pushy-$1-build.$RANDOM$RANDOM"
