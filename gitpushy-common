@@ -175,11 +175,11 @@ gitpushy-build() {
     [ $PUSHY_VERBOSE != 0 ] && cat $IO_CMD | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-build: {}"
 
     # run pushy build srcipts
-    (cat $IO_CMD | bash) 1> >(tee $IO_OUT) 2> >(tee $IO_ERR) | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - .gitpushy-$1-build - {}"
+    (cat $IO_CMD | bash) 1> >(tee $IO_OUT) 2> >(tee $IO_ERR) | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-build - {}"
 
     # capture execution status
     PUSHY_STATUS=${PIPESTATUS[0]}
-    [ $PUSHY_STATUS = 0 ] && [ -s gitpushy-$1-build.error ] && PUSHY_STATUS=500
+    [ $PUSHY_STATUS = 0 ] && [ -s $IO_ERR ] && PUSHY_STATUS=500
 
     # return pushy status
     return $PUSHY_STATUS
@@ -214,14 +214,14 @@ gitpushy-stage() {
 
     # run pushy stage scripts
     if [ $PUSHY_REMOTE = 0 ]; then 
-        (cat $IO_CMD | bash) 1> >(tee $IO_OUT) 2> >(tee $IO_ERR) | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - .gitpushy-$1-stage - {}"
+        (cat $IO_CMD | bash) 1> >(tee $IO_OUT) 2> >(tee $IO_ERR) | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-stage - {}"
     else
-        (cat $IO_CMD | ssh -p $PUSHY_PORT $PUSHY_USER@$PUSHY_SERVER bash) 1> >(tee $IO_OUT) 2> >(tee $IO_ERR) | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - .gitpushy-$1-stage - {}"
+        (cat $IO_CMD | ssh -p $PUSHY_PORT $PUSHY_USER@$PUSHY_SERVER bash) 1> >(tee $IO_OUT) 2> >(tee $IO_ERR) | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-stage - {}"
     fi
 
     # capture exit status
     PUSHY_STATUS=${PIPESTATUS[0]}
-    [ $PUSHY_STATUS = 0 ] && [ -s gitpushy-$1-stage.error ] && PUSHY_STATUS=500
+    [ $PUSHY_STATUS = 0 ] && [ -s $IO_ERR ] && PUSHY_STATUS=500
 
     # return pushy status
     return $PUSHY_STATUS
@@ -250,7 +250,7 @@ gitpushy-deploy() {
     echo 'if [ $? != 0 ]; then' >> $IO_CMD
     echo 'echo "Deploying to blank directory: $PUSHY_DEPLOY_DIR"' >> $IO_CMD
     echo 'elif [ -n "$PUSHY_DEPLOY_ARCHIVE" ]; then' >> $IO_CMD
-    echo 'tar czf "$PUSHY_DEPLOY_ARCHIVE" .' >> $IO_CMD
+    echo 'tar czf "$PUSHY_DEPLOY_ARCHIVE.tgz" .' >> $IO_CMD
     echo 'fi' >> $IO_CMD
     echo 'rm -rf $PUSHY_DEPLOY_DIR' >> $IO_CMD
     echo 'cd "$PUSHY_STAGE_DIR"' >> $IO_CMD
@@ -266,14 +266,14 @@ gitpushy-deploy() {
 
     # run pushy deploy scripts
     if [ $PUSHY_REMOTE = 0 ]; then
-        (cat $IO_CMD | bash) 1> >(tee $IO_OUT) 2> >(tee $IO_OUT) | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - .gitpushy-$1-deploy - {}"
+        (cat $IO_CMD | bash) 1> >(tee $IO_OUT) 2> >(tee $IO_ERR) | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-deploy - {}"
     else
-        (cat $IO_CMD | ssh -p $PUSHY_PORT $PUSHY_USER@$PUSHY_SERVER bash) 1> >(tee $IO_OUT) 2> >(tee $IO_ERR) | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - .gitpushy-$1-deploy - {}"
+        (cat $IO_CMD | ssh -p $PUSHY_PORT $PUSHY_USER@$PUSHY_SERVER bash) 1> >(tee $IO_OUT) 2> >(tee $IO_ERR) | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-deploy - {}"
     fi
 
     # capture exit status
     PUSHY_STATUS=${PIPESTATUS[0]}
-    [ $PUSHY_STATUS = 0 ] && [ -s gitpushy-$1-deploy.error ] && PUSHY_STATUS=500
+    [ $PUSHY_STATUS = 0 ] && [ -s $IO_ERR ] && PUSHY_STATUS=500
 
     # return pushy status
     return $PUSHY_STATUS
@@ -286,7 +286,8 @@ gitpushy-deploy() {
 #
 gitpushy-push-branch() {
     # Export pushy variables to main environment
-    export PUSHY_DEPLOY_ARCHIVE="~/$PUSHY_REPO-$(date +%Y%m%d-%H%M%S).tgz"
+    export PUSHY_DEPLOY_HOTSWAP="-$(date +%Y%m%d-%H%M%S)"
+    export PUSHY_DEPLOY_ARCHIVE="~/$PUSHY_REPO-$(date +%Y%m%d-%H%M%S)"
     export PUSHY_DEPLOY_DIR=""
     export PUSHY_BUILD_KEEP=""
     export PUSHY_BUILD_DIR="/tmp/pushy-$1-build.$RANDOM$RANDOM"
