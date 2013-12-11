@@ -89,10 +89,10 @@ gitpushy-trigger() {
     "
 
     # show commands run if verbosity is set
-    [ $PUSHY_VERBOSE != 0 ] && echo "$PUSHY_CONFIG" | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-config: - {}"
+    [ $PUSHY_VERBOSE != 0 ] && echo "$PUSHY_CONFIG" | nl -ba | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-config: {}"
 
     # show environment if verbosity is set
-    [ $PUSHY_VERBOSE != 0 ] && echo "$PUSHY_ENV" | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-environment - {}"
+    [ $PUSHY_VERBOSE != 0 ] && echo "$PUSHY_ENV" | nl -ba | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-environment: {}"
 
     # run deployment scripts
     if [ $PUSHY_STATUS != 0 ]; then
@@ -107,7 +107,7 @@ gitpushy-trigger() {
         local IO_ERR=gitpushy-$1-custom.error
 
         # show commands run if verbosity is set
-        [ $PUSHY_VERBOSE != 0 ] && echo "$PUSHY_CUSTOM" | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-custom: {}"
+        [ $PUSHY_VERBOSE != 0 ] && echo "$PUSHY_CUSTOM" | nl -ba | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-custom: {}"
 
         # run custom script
         (eval "$PUSHY_CUSTOM" 1> >(tee $IO_OUT) 2> >(tee $IO_ERR))
@@ -181,7 +181,7 @@ gitpushy-build() {
     echo 'exit $PUSHY_STATUS' >> $IO_CMD
 
     # show commands run if verbosity is set
-    [ $PUSHY_VERBOSE != 0 ] && cat $IO_CMD | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-build: {}"
+    [ $PUSHY_VERBOSE != 0 ] && cat $IO_CMD | nl -ba | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-build: {}"
 
     # run pushy build srcipts
     (cat $IO_CMD | bash) 1> >(tee $IO_OUT) 2> >(tee $IO_ERR) | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-build - {}"
@@ -219,7 +219,7 @@ gitpushy-stage() {
     echo 'exit $PUSHY_STATUS' >> $IO_CMD
 
     # show commands run if verbosity is set
-    [ $PUSHY_VERBOSE != 0 ] && cat $IO_CMD | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-stage: {}"
+    [ $PUSHY_VERBOSE != 0 ] && cat $IO_CMD | nl -ba | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-stage: {}"
 
     # run pushy stage scripts
     if [ $PUSHY_REMOTE = 0 ]; then 
@@ -293,7 +293,6 @@ gitpushy-deploy() {
     echo '}' >> $IO_CMD
 
     #prepare running
-    echo "$PUSHY_ENV" > $IO_CMD
     echo "$PUSHY_ENV" >> $IO_CMD
     echo "PUSHY_TRIGGER='$1'" >> $IO_CMD
     echo "PUSHY_STATUS='$PUSHY_STATUS'" >> $IO_CMD
@@ -303,7 +302,7 @@ gitpushy-deploy() {
     echo 'exit $PUSHY_STATUS' >> $IO_CMD
 
     # show commands run if verbosity is set
-    [ $PUSHY_VERBOSE != 0 ] && cat $IO_CMD | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-deploy: {}"
+    [ $PUSHY_VERBOSE != 0 ] && cat $IO_CMD | nl -ba | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-deploy: {}"
 
     # run pushy deploy scripts
     if [ $PUSHY_REMOTE = 0 ]; then
