@@ -100,14 +100,14 @@ gitpushy-trigger() {
     elif [ -n "$PUSHY_CUSTOM" ]; then
         local DEPLOYMENT_RUN="$1 custom script"
 
-        echo "GitPushy - Calling $DEPLOYMENT_RUN"
-        echo "----------"
-
         local IO_OUT=gitpushy-$1-custom.output
         local IO_ERR=gitpushy-$1-custom.error
 
         # show commands run if verbosity is set
         [ $PUSHY_VERBOSE != 0 ] && echo "$PUSHY_CUSTOM" | nl -ba | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-custom: {}"
+
+        echo "GitPushy - Calling $DEPLOYMENT_RUN"
+        echo "----------"
 
         # run custom script
         (eval "$PUSHY_CUSTOM" 1> >(tee $IO_OUT) 2> >(tee $IO_ERR))
@@ -116,6 +116,7 @@ gitpushy-trigger() {
         PUSHY_STATUS=$?
         [ $PUSHY_STATUS = 0 ] && [ -s $IO_ERR ] && PUSHY_STATUS=500
 
+        sleep 2
         echo "----------"
     elif [ -n "$PUSHY_DEPLOY_DIR" ]; then
         local DEPLOYMENT_RUN="$1 deployment"
