@@ -252,9 +252,6 @@ gitpushy-deploy() {
 
     export PUSHY_SAME_DIR=""
 
-    echo 'cd "$PUSHY_STAGE_DIR"' >> $IO_CMD
-    echo 'if [ -n "$PUSHY_DEPLOY_HOTSWAP" ]; then' >> $IO_CMD
-    echo 'fi' >> $IO_CMD
     [ $PUSHY_REMOTE = 0 ] && [ $PUSHY_BUILD_DIR = $PUSHY_DEPLOY_DIR ] && PUSHY_SAME_DIR="BUILD"
     [ $PUSHY_STAGE_DIR = $PUSHY_DEPLOY_DIR ] && PUSHY_SAME_DIR="STAGE"
 
