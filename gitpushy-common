@@ -15,16 +15,8 @@
 gitpushy-init() {
     # set PUSHY variables
     export PUSHY_REPO=""
-    export PUSHY_BRANCH=""
+    export PUSHY_BRANCH="$(gitpushy-branch-name)"
     export PUSHY_BRANCHES=()
-
-    # Make sure PUSHY_REPO is set
-    [ -z "$PUSHY_REPO" ] && if [ $(git rev-parse --is-bare-repository) = true ]; then
-        PUSHY_REPO=$(basename "$PWD")
-        PUSHY_REPO=${PUSHY_REPO%.git}
-    else
-        PUSHY_REPO=$(basename $(readlink -nf "$PWD"/..))
-    fi
 
     while read oldrev newrev refname; do
         PUSHY_BRANCHES+=($(git rev-parse --symbolic --abbrev-ref $refname))
@@ -617,6 +609,7 @@ gitpushy-script() {
 # @usage gitpushy-cat {file} [ {file} ...]
 #
 gitpushy-cat() {
+    # check to make sure there is a branch
     [ -z "$PUSHY_BRANCH" ] && PUSHY_BRANCH=$(gitpushy-branch-name)
 
     # cat files in repo
