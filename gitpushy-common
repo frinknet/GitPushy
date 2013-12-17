@@ -390,9 +390,6 @@ gitpushy-push-branch() {
 
     [ $? != 0 ] && echo "GitPushy - Failed to clone repo to $PUSHY_BUILD_DIR" >&2 && return $?
 
-    # reorient git
-    export GIT_DIR=$PUSHY_BUILD_DIR/.git
-
     # Process GitPushy Branch Hooks
     if [ -f $REPO_BARE/hooks/gitpushy-$PUSHY_BRANCH-branch ]; then
         echo "GitPushy - Custom GitPushy Hook: pushy-$PUSHY_BRANCH-branch"
@@ -480,18 +477,52 @@ gitpushy-clone-temp() {
     [ -z "$1" ] && echo "GitPushy - No build directory specified" && local CLONE_STATUS=404
 
     if [ $CLONE_STATUS = 0 ]; then
-        # make a clean local clone
-        (rm -rf $1; git clone -b $PUSHY_BRANCH . $1) 1>/dev/null 2>/dev/null
+        if [ ! -d "$1" ]; then
+          # make a clean local clone
+          git clone . $1 1>/dev/null 2>/dev/null
+        fi
 
-        local CLONE_STATUS=${PIPESTATUS[0]}
-
-        # switch to clone
+        # change to new dir
         cd $1
+
+        echo "Working Dir: $PWD"
+
+        # reorient git
+        export GIT_DIR=$1/.git
+
+        # check git
+        git status 1>/dev/null 2>/dev/null
+        CLONE_STATUS=$?
     fi
 
-    if [ $CLONE_STATUS != 0 ]; then
-        echo "GitPushy - Exited cloning $1 with status $CLONE_STATUS"
+    if [ $CLONE_STATUS = 0 ]; then
+        # update the remote to make sure we have all changes
+        git remote update 1>/dev/null 2>/dev/null
+        CLONE_STATUS=$?
+
+        # checkout track branch
+        git checkout -t origin/$PUSHY_BRANCH 1>/dev/null 2>/dev/null
+
+        [ $CLONE_STATUS != 0 ] && echo "Failed to update remote"
     fi
+
+    if [ $CLONE_STATUS = 0 ]; then
+        # checkout branch
+        git checkout $PUSHY_BRANCH 1>/dev/null 2>/dev/null
+        CLONE_STATUS=$?
+
+        [ $CLONE_STATUS != 0 ] && echo "Failed to checkout $PUSHY_BRANCH"
+    fi
+
+    if [ $CLONE_STATUS = 0 ]; then
+        # pull the latest changes
+        git pull origin $PUSHY_BRANCH 1>/dev/null 2>/dev/null
+        CLONE_STATUS=$?
+
+        [ $CLONE_STATUS != 0 ] && echo "Failed to pull $PUSHY_BRANCH"
+    fi
+
+    [ $CLONE_STATUS != 0 ] && echo "GitPushy - Exited cloning $1 with status $CLONE_STATUS"
 
     # return pushy status
     return $CLONE_STATUS
