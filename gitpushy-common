@@ -485,49 +485,67 @@ gitpushy-push-replicate() {
 #
 gitpushy-clone-temp() {
     local CLONE_STATUS=0
+
+    # set branch if it is not yet set
     [ -z "$PUSHY_BRANCH" ] && PUSHY_BRANCH=$(gitpushy-branch-name)
+
+    # make sure we have a build directory
     [ -z "$1" ] && echo "GitPushy - No build directory specified" && local CLONE_STATUS=404
 
-    if [ $CLONE_STATUS = 0 ]; then
-        if [ ! -d "$1" ]; then
-          # make a clean local clone
-          git clone . $1 1>/dev/null 2>/dev/null
-        fi
-
-        # change to new dir
-        cd $1
-
-        echo "Working Dir: $(pwd)"
-
-        # reorient git
-        export GIT_DIR=$1/.git
-
-        # check git
-        git status 1>/dev/null 2>/dev/null
+    # make a clean local clone
+    if [ $CLONE_STATUS = 0 ] && [ ! -d "$1" ]; then
+        git clone . $1 1>/dev/null 2>/dev/null
         CLONE_STATUS=$?
+
+        [ $CLONE_STATUS != 0 ] && echo "Failed to clone to $1"
     fi
 
+    # change to new dir
     if [ $CLONE_STATUS = 0 ]; then
-        # update the remote to make sure we have all changes
-        git remote update 1>/dev/null 2>/dev/null
+        cd $1
         CLONE_STATUS=$?
 
-        # checkout track branch
-        git checkout -t origin/$PUSHY_BRANCH 1>/dev/null 2>/dev/null
+        [ $CLONE_STATUS != 0 ] && echo "Failed to change directory to $1"
+    fi
+
+    # reorient git and check status
+    if [ $CLONE_STATUS = 0 ]; then
+        echo "Working Dir: $(pwd)"
+
+        export GIT_DIR=$1/.git
+
+        git status 1>/dev/null 2>/dev/null
+        CLONE_STATUS=$?
+
+        [ $CLONE_STATUS != 0 ] && echo "Failed to git status of clone at $1"
+    fi
+
+    # update the remote to make sure we have all changes
+    if [ $CLONE_STATUS = 0 ]; then
+        git remote update 1>/dev/null 2>/dev/null
+        CLONE_STATUS=$?
 
         [ $CLONE_STATUS != 0 ] && echo "Failed to update remote"
     fi
 
+    # checkout track branch
     if [ $CLONE_STATUS = 0 ]; then
-        # checkout branch
+        git checkout -t origin/$PUSHY_BRANCH 1>/dev/null 2>/dev/null
+        CLONE_STATUS=$?
+
+        [ $CLONE_STATUS != 0 ] && echo "Failed to find origin/$PUSHY_BRANCH"
+    fi
+
+    # checkout branch
+    if [ $CLONE_STATUS = 0 ]; then
         git checkout $PUSHY_BRANCH 1>/dev/null 2>/dev/null
         CLONE_STATUS=$?
 
         [ $CLONE_STATUS != 0 ] && echo "Failed to checkout $PUSHY_BRANCH"
     fi
 
+    # pull the latest changes
     if [ $CLONE_STATUS = 0 ]; then
-        # pull the latest changes
         git pull origin $PUSHY_BRANCH 1>/dev/null 2>/dev/null
         CLONE_STATUS=$?
 
