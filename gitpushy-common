@@ -250,10 +250,10 @@ gitpushy-deploy() {
     local IO_OUT=gitpushy-$1-deploy.output
     local IO_ERR=gitpushy-$1-deploy.error
 
-    export PUSHY_SAME_DIR=""
+    local PUSHY_SAME_DIR=""
 
     [ $PUSHY_REMOTE = 0 ] && [ $PUSHY_BUILD_DIR = $PUSHY_DEPLOY_DIR ] && PUSHY_SAME_DIR="BUILD"
-    [ $PUSHY_STAGE_DIR = $PUSHY_DEPLOY_DIR ] && PUSHY_SAME_DIR="STAGE"
+    [ -z "$PUSHY_SAME_DIR" ] && [ $PUSHY_STAGE_DIR = $PUSHY_DEPLOY_DIR ] && PUSHY_SAME_DIR="STAGE"
 
     echo "GitPushy - Deploying $PUSHY_REPO:$PUSHY_BRANCH to $PUSHY_SERVER:$PUSHY_DEPLOY_DIR"
 
@@ -316,6 +316,7 @@ gitpushy-deploy() {
         echo '[ $PUSHY_STATUS = 0 ] && gitpushy-transact' >> $IO_CMD
         echo '[ $PUSHY_STATUS != 0 ] && gitpushy_rollback' >> $IO_CMD
     fi
+
     echo 'exit $PUSHY_STATUS' >> $IO_CMD
 
     # show commands run if verbosity is set
