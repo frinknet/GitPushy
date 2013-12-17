@@ -400,10 +400,12 @@ gitpushy-push-branch() {
     # make a switch to clean local clone
     gitpushy-clone-temp $PUSHY_BUILD_DIR
 
+    # report errors
     [ $? != 0 ] && echo "GitPushy - Failed to clone repo to $PUSHY_BUILD_DIR" >&2 && return $?
 
     # Process GitPushy Branch Hooks
     if [ -f $REPO_BARE/hooks/gitpushy-$PUSHY_BRANCH-branch ]; then
+        # run branch hook
         echo "GitPushy - Custom GitPushy Hook: pushy-$PUSHY_BRANCH-branch"
 
         local IO_OUT=gitpushy-$1-branch.output
@@ -425,9 +427,16 @@ gitpushy-push-branch() {
         done
     fi
 
-    # clean up after deploy
-    gitpushy-clean-temp $PUSHY_BUILD_DIR
+    # message if keeping build dir is specified
+    [ -n "$PUSHY_BUILD_KEEP" ] && echo "GitPushy - Keeping build directory $1"
 
+    # clean up after deploy if keeping is not specified
+    [ -z "$PUSHY_BUILD_KEEP" ] && gitpushy-clean-temp $PUSHY_BUILD_DIR
+
+    # switch to bare repo
+    [ -n "$PUSHY_BARE" ] && cd $PUSHY_BARE
+
+    # report errors
     [ $? != 0 ] && echo "GitPushy - Failed to remove $PUSHY_BUILD_DIR" >&2 && return $?
 
     # reset git orientation
@@ -567,16 +576,17 @@ gitpushy-clone-temp() {
 #
 gitpushy-clean-temp() {
     local CLEAN_STATUS=0
-    [ -z "$1" ] && echo "GitPushy - No build directory specified" && local CLEAN_STATUS=404
-    [ $PUSHY_STATUS != 0 ] && echo "GitPushy - Leaving build directory $1" && return 500
-    [ -n "$PUSHY_BUILD_KEEP" ] && echo "GitPushy - Keeping build directory $1" && return 0
 
+    # check that build dir was specified
+    [ -z "$1" ] && echo "GitPushy - No build directory specified" && local CLEAN_STATUS=404
+
+    # check if pushy status is good
+    [ $PUSHY_STATUS != 0 ] && echo "GitPushy - Leaving build directory $1" && return 500
+
+    # remove bare dir
     if [ $CLEAN_STATUS = 0 ]; then
         rm -rf $1 1>/dev/null 2>/dev/null
         local CLEAN_STATUS=$?
-
-        # switch to clone
-        [ -n "$PUSHY_BARE" ] && cd $PUSHY_BARE
     fi
 
     # echo status
