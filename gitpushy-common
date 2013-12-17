@@ -14,8 +14,7 @@
 #
 gitpushy-init() {
     # set PUSHY variables
-    export PUSHY_REPO=""
-    export PUSHY_BRANCH="$(gitpushy-branch-name)"
+    export PUSHY_BRANCH=""
     export PUSHY_BRANCHES=()
 
     while read oldrev newrev refname; do
@@ -362,11 +361,11 @@ gitpushy-push-branch() {
     export PUSHY_TRIGGER=""
     export PUSHY_PORT=22
     export PUSHY_USER=$(whoami)
-    export PUSHY_REPO="$PUSHY_REPO"
+    export PUSHY_REPO="$(gitpushy-repo-name)"
 
     # check if branch exists
-    [ -z "$PUSHY_BRANCH" ] && "BRANCH was not passed to gitpushy-push-branch" && return 1
-    [ ! -f $GIT_DIR/refs/heads/$PUSHY_BRANCH ] && echo "$PUSHY_BRANCH does not exist in $PUSHY_REPO" && return 1
+    [ -z "$PUSHY_BRANCH" ] && "GitPushy - BRANCH was not passed to gitpushy-push-branch" && return 1
+    [ ! -f $GIT_DIR/refs/heads/$PUSHY_BRANCH ] && echo "GitPushy - '$PUSHY_BRANCH' does not exist in '$PUSHY_REPO'" && return 1
 
     # prepare pushy config script
     PUSHY_CONFIG="$(gitpushy-script config main)"
@@ -616,6 +615,25 @@ gitpushy-cat() {
     grep -v "^\s*$" <(for file in $@; do
         git show refs/heads/$PUSHY_BRANCH:$file 2>/dev/null
     done)
+}
+
+##
+# Echo current branch name
+#
+# @usage gitpushy-repo-name
+#
+gitpushy-repo-name() {
+    local PUSHY_REPO="";
+
+    # Make sure PUSHY_REPO is set
+    if [ $(git rev-parse --is-bare-repository) = true ]; then
+        PUSHY_REPO=$(basename "$PWD")
+        PUSHY_REPO=${PUSHY_REPO%.git}
+    else
+        PUSHY_REPO=$(basename $(readlink -nf "$PWD"/..))
+    fi
+
+    echo $PUSHY_REPO;
 }
 
 ##
