@@ -364,7 +364,7 @@ gitpushy-push-branch() {
     export PUSHY_REPO="$(gitpushy-repo-name)"
 
     # set GIT_DIR to PWD if not set
-    [ -z "$GIT_DIR" ] && export $GIT_DIR=$PWD
+    [ -z "$GIT_DIR" ] && echo "GIT_DIR was not set - $PWD" && export $GIT_DIR="$PWD"
 
     # check if branch was passed
     [ -z "$PUSHY_BRANCH" ] && "GitPushy - branch was not passed to gitpushy-push-branch" && return 1
