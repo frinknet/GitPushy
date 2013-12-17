@@ -497,7 +497,7 @@ gitpushy-clone-temp() {
         # change to new dir
         cd $1
 
-        echo "Working Dir: $PWD"
+        echo "Working Dir: $(pwd)"
 
         # reorient git
         export GIT_DIR=$1/.git
