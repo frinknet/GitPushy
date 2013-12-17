@@ -175,7 +175,6 @@ gitpushy-build() {
         # rsync remote
         PUSHY_SYNC="$PUSHY_SYNC --rsh='ssh -p$PUSHY_PORT' "'"$PUSHY_BUILD_DIR/"'" '$PUSHY_USER@$PUSHY_SERVER:$PUSHY_STAGE_DIR/'"
     fi
-    fi
 
     # prepare pushy build script
     echo "$PUSHY_ENV" > $IO_CMD
