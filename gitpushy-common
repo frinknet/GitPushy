@@ -176,6 +176,7 @@ gitpushy-build() {
         PUSHY_SYNC="$PUSHY_SYNC --rsh='ssh -p$PUSHY_PORT' "'"$PUSHY_BUILD_DIR/"'" '$PUSHY_USER@$PUSHY_SERVER:$PUSHY_STAGE_DIR/'"
     fi
 
+
     # prepare pushy build script
     echo "$PUSHY_ENV" > $IO_CMD
     echo "PUSHY_TRIGGER='$1'" >> $IO_CMD
