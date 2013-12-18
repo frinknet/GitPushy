@@ -70,10 +70,10 @@ gitpushy-trigger() {
 
     # gitpushy build directives
     PUSHY_DEPLOY_HOTSWAP='$PUSHY_DEPLOY_HOTSWAP'
-    PUSHY_DEPLOY_ARCHIVE="$(echo "$PUSHY_DEPLOY_ARCHIVE" | sed 's/^~/$HOME/')"
-    PUSHY_DEPLOY_DIR="$(echo "$PUSHY_DEPLOY_DIR" | sed 's/^~/$HOME/')"
-    PUSHY_STAGE_DIR="$(echo "$PUSHY_STAGE_DIR" | sed 's/^~/$HOME/')"
-    PUSHY_BUILD_DIR="$(echo "$PUSHY_BUILD_DIR" | sed 's/^~/$HOME/')"
+    PUSHY_DEPLOY_ARCHIVE="'"'$(echo "$PUSHY_DEPLOY_ARCHIVE" | sed 's/^~/$HOME/')'"'"
+    PUSHY_DEPLOY_DIR="'"'$(echo "$PUSHY_DEPLOY_DIR" | sed 's/^~/$HOME/')'"'"
+    PUSHY_STAGE_DIR="'"'$(echo "$PUSHY_STAGE_DIR" | sed 's/^~/$HOME/')'"'"
+    PUSHY_BUILD_DIR="'"'$(echo "$PUSHY_BUILD_DIR" | sed 's/^~/$HOME/')'"'"
     PUSHY_BUILD_KEEP='$PUSHY_BUILD_KEEP'
 
     # numeric switches
