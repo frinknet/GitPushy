@@ -529,7 +529,7 @@ gitpushy-clone-temp() {
     # reorient git and check status
     if [ $CLONE_STATUS = 0 ]; then
         echo "GitPushy - Working Dir: $(pwd)"
-        echo export GIT_DIR="$(cd "$(git rev-parse --git-dir)"; pwd)"
+        echo export GIT_DIR="$(pwd)/.git"
         export GIT_DIR="$(cd "$(git rev-parse --git-dir)"; pwd)"
 
         echo git status
