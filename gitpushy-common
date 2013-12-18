@@ -434,7 +434,7 @@ gitpushy-push-branch() {
     fi
 
     # is PUSHY_BUILD_KEEP specified
-    if [ -z "$PUSHY_BUILD_KEEP" ]; then
+    if [ -n "$PUSHY_BUILD_KEEP" ]; then
         echo "GitPushy - Keeping build directory $1"
     else
         gitpushy-clean-temp $PUSHY_BUILD_DIR
