@@ -510,7 +510,6 @@ gitpushy-clone-temp() {
 
     # make a clean local clone
     if [ $CLONE_STATUS = 0 ] && [ ! -d "$1" ]; then
-        echo git clone "$GIT_DIR" "$1"
         git clone "$GIT_DIR" "$1" 1>/dev/null 2>/dev/null
         CLONE_STATUS=$?
 
@@ -519,7 +518,6 @@ gitpushy-clone-temp() {
 
     # change to new dir
     if [ $CLONE_STATUS = 0 ]; then
-        echo cd "$1"
         cd "$1" 2>/dev/null
         CLONE_STATUS=$?
 
@@ -529,7 +527,6 @@ gitpushy-clone-temp() {
     # reorient git and check status
     if [ $CLONE_STATUS = 0 ]; then
         echo "GitPushy - Working Dir: $(pwd)"
-        echo export GIT_DIR="$(pwd)/.git"
         export GIT_DIR="$(pwd)/.git"
 
         git status 1>/dev/null 2>/dev/null
@@ -540,7 +537,6 @@ gitpushy-clone-temp() {
 
     # update the remote to make sure we have all changes
     if [ $CLONE_STATUS = 0 ]; then
-        echo git remote update
         git remote update 1>/dev/null 2>/dev/null
         CLONE_STATUS=$?
 
