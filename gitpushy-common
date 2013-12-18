@@ -503,13 +503,14 @@ gitpushy-clone-temp() {
     local BRANCH_EXISTS=0
 
     # set branch if it is not yet set
-    [ -z "$PUSHY_BRANCH" ] && PUSHY_BRANCH=$(gitpushy-branch-name)
+    [ -z "$PUSHY_BRANCH" ] && PUSHY_BRANCH="$(gitpushy-branch-name)"
 
     # make sure we have a build directory
     [ -z "$1" ] && echo "GitPushy - No build directory specified" && local CLONE_STATUS=404
 
     # make a clean local clone
     if [ $CLONE_STATUS = 0 ] && [ ! -d "$1" ]; then
+        echo git clone "$GIT_DIR" "$1"
         git clone "$GIT_DIR" "$1" 1>/dev/null 2>/dev/null
         CLONE_STATUS=$?
 
@@ -518,7 +519,8 @@ gitpushy-clone-temp() {
 
     # change to new dir
     if [ $CLONE_STATUS = 0 ]; then
-        cd "$1"
+        echo cd "$1"
+        cd "$1" 2>/dev/null
         CLONE_STATUS=$?
 
         [ $CLONE_STATUS != 0 ] && echo "GitPushy - Failed to change directory to $1"
@@ -527,8 +529,10 @@ gitpushy-clone-temp() {
     # reorient git and check status
     if [ $CLONE_STATUS = 0 ]; then
         echo "GitPushy - Working Dir: $(pwd)"
+        echo export GIT_DIR="$(cd "$(git rev-parse --git-dir)"; pwd)"
         export GIT_DIR="$(cd "$(git rev-parse --git-dir)"; pwd)"
 
+        echo git status
         git status 1>/dev/null 2>/dev/null
         CLONE_STATUS=$?
 
@@ -537,6 +541,7 @@ gitpushy-clone-temp() {
 
     # update the remote to make sure we have all changes
     if [ $CLONE_STATUS = 0 ]; then
+        echo git remote update
         git remote update 1>/dev/null 2>/dev/null
         CLONE_STATUS=$?
 
