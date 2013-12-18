@@ -547,11 +547,11 @@ gitpushy-clone-temp() {
     fi
 
     # checkout track branch if one doesn't exist
-    if [ $CLONE_STATUS = 0 ] && [ $(git show-branch $PUSHY_BRANCH 1>/dev/null 2>/dev/null; echo $?) = 0 ]; then
+    if [ $CLONE_STATUS = 0 ] && [ "$(git show-branch $PUSHY_BRANCH; echo $?)" = 0 ]; then
         git checkout -t origin/$PUSHY_BRANCH 1>/dev/null 2>/dev/null
         CLONE_STATUS=$?
 
-        [ $CLONE_STATUS != 0 ] && echo "GitPushy - Failed to find branch $PUSHY_BRANCH"
+        [ $CLONE_STATUS != 0 ] && echo "GitPushy - Failed to find branch origin/$PUSHY_BRANCH"
     fi
 
     # checkout branch
