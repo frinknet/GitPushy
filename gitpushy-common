@@ -441,6 +441,7 @@ gitpushy-push-branch() {
 
     # report errors
     [ $? != 0 ] && echo "GitPushy - Failed to find $OLD_PWD_DIR" >&2 && return $?
+    [ $PUSHY_STATUS != 0 ] && echo "GitPushy - Unsuccessful push branch $PUSHY_BRANCH - status $PUSHY_STATUS" >&2
 
     # reset git orientation
     if [ -n "$OLD_GIT_DIR" ]; then
@@ -649,7 +650,7 @@ gitpushy-clean-temp() {
     [ -z "$1" ] && echo "GitPushy - No build directory specified" && local CLEAN_STATUS=404
 
     # check if pushy status is good
-    [ $PUSHY_STATUS != 0 ] && echo "GitPushy - Leaving build directory $1" && return 500
+    [ $PUSHY_STATUS != 0 ] && echo "GitPushy - Leaving Dir: $1" && return 500
 
     # remove bare dir
     if [ $CLEAN_STATUS = 0 ]; then
