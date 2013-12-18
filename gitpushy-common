@@ -441,7 +441,7 @@ gitpushy-push-branch() {
     [ $? != 0 ] && echo "GitPushy - Failed to find $OLD_PWD_DIR" >&2 && return $?
 
     # report errors
-    [ $PUSHY_STATUS != 0 ] && echo "GitPushy - Unsuccessful push branch $PUSHY_BRANCH - status $PUSHY_STATUS" >&2
+    [ $PUSHY_STATUS != 0 ] && echo "GitPushy - Unsuccessful push to branch $PUSHY_BRANCH - status $PUSHY_STATUS" >&2
 
     # reset git orientation
     if [ -n "$OLD_GIT_DIR" ]; then
@@ -532,8 +532,12 @@ gitpushy-push-replicate() {
 
     # push to remote server
     if [ $REPLICA_STATUS = 0 ] && [ "$(gitpushy-committer)" = "GitPushy" ]; then
-        git push "$REPLICA_REMOTE" "$REPLICA_BRANCH:$PUSHY_BRANCH" 2>&1 | grep "^remote" | sed -e "s/^remote/$REPLICA_SERVER/g"
+        echo "----------"
+
+        git push "$REPLICA_REMOTE" "$REPLICA_BRANCH:$PUSHY_BRANCH" 2>&1 | grep "^remote" | sed -e "s/^remote: //g"
         REPLICA_STATUS=${PIPESTATUS[0]}
+
+        echo "----------"
 
         [ $REPLICA_STATUS != 0 ] && echo "GitPushy - Failed to push $(git config --get "remote.$REPLICA_REMOTE.url")"
     fi
