@@ -404,7 +404,7 @@ gitpushy-push-branch() {
 
     if [ $PUSHY_STATUS != 0 ]; then
         # Force to keep build dir
-        PUSHY_BUILD_KEEP="true"
+        PUSHY_BUILD_KEEP=1
     elif [ -f $GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch ]; then
         # Process GitPushy Branch Hook
         echo "GitPushy - Custom GitPushy Hook: pushy-$PUSHY_BRANCH-branch"
@@ -422,18 +422,18 @@ gitpushy-push-branch() {
         # Process GitPushy Main Trigger
         gitpushy-trigger main
 
-        # loop through addtional triggers
         # loop through addtional triggers if there is no error
         [ $PUSHY_STATUS = 0 ] && for PUSHY_TRIGGER in ${PUSHY_TRIGGERS[@]}; do
             gitpushy-trigger $PUSHY_TRIGGER
         done
     fi
 
-    # message if keeping build dir is specified
-    [ -n "$PUSHY_BUILD_KEEP" ] && echo "GitPushy - Keeping build directory $1"
-
-    # clean up after deploy if keeping is not specified
-    [ -z "$PUSHY_BUILD_KEEP" ] && gitpushy-clean-temp $PUSHY_BUILD_DIR
+    # is PUSHY_BUILD_KEEP specified
+    if [ -z "$PUSHY_BUILD_KEEP" ]; then
+        echo "GitPushy - Keeping build directory $1"
+    else
+        gitpushy-clean-temp $PUSHY_BUILD_DIR
+    fi
 
     # switch to bare repo
     [ -n "$REPO_BARE" ] && cd $REPO_BARE
