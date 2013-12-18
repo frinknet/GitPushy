@@ -474,12 +474,10 @@ gitpushy-push-replicate() {
     fi
 
     # check if we are in a repository
-    if [ $REPLICA_STATUS = 0 ]; then
-        git status 1>/dev/null 2>/dev/null
-        REPLICA_STATUS=$?
+    git status 1>/dev/null 2>/dev/null
+    REPLICA_STATUS=$?
 
-        [ $REPLICA_STATUS != 0 ] && echo "GitPushy - Not a git repository $(pwd)"
-    fi
+    [ $REPLICA_STATUS != 0 ] && echo "GitPushy - Not a git repository $(pwd)"
 
     # add branch and checkout
     if [ $REPLICA_STATUS = 0 ]; then
