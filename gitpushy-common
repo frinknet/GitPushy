@@ -399,18 +399,11 @@ gitpushy-push-branch() {
     # check if this branch has gitpushy data
     [ ! -f "$REPO_GIT/hooks/gitpushy-$PUSHY_BRANCH-branch" ] && [ -z "$PUSHY_CONFIG$PUSHY_CUSTOM" ] && echo "No GitPushy for $PUSHY_REPO:$PUSHY_BRANCH" && return 0
 
-    local IO_OUT=gitpushy-$1-config.output
-    local IO_ERR=gitpushy-$1-config.error
-
-    # run config scripts for deployment
-    eval "$PUSHY_CONFIG" 1> >(tee $IO_OUT) 2> >(tee $IO_ERR)> >(tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-config - {}")
-    PUSHY_STATUS=$?
-
-    # capture exit status
-    [ $PUSHY_STATUS = 0 ] && [ -s $IO_ERR ] && PUSHY_STATUS=500
+    # run config to set PUSHY_BUILD_DIR and PUSHY_BUILD_KEEP
+    eval "$( echo "$PUSHY_CONFIG" | grep '^PUSHY_BUILD_\(DIR\|KEEP\)=')"
 
     # make a switch to clean local clone
-    [ $PUSHY_STATUS = 0 ] && gitpushy-clone-temp $PUSHY_BUILD_DIR
+    [ $PUSHY_STATUS = 0 ] && gitpushy-clone-temp "$PUSHY_BUILD_DIR"
     local CLONE_STATUS=$?
 
     # report errors
@@ -595,27 +588,28 @@ gitpushy-push-replicate() {
 gitpushy-clone-temp() {
     local CLONE_STATUS=0
     local BRANCH_EXISTS=0
+    local CLONE_DIR="${1//~/$HOME}"
 
     # set branch if it is not yet set
     [ -z "$PUSHY_BRANCH" ] && PUSHY_BRANCH="$(gitpushy-branch-name)"
 
     # make sure we have a build directory
-    [ -z "$1" ] && echo "GitPushy - No build directory specified" && local CLONE_STATUS=404
+    [ -z "$CLONE_DIR" ] && echo "GitPushy - No build directory specified" && local CLONE_STATUS=404
 
     # make a clean local clone
-    if [ $CLONE_STATUS = 0 ] && [ ! -d "$1" ]; then
-        git clone "$(cd "$(git rev-parse --git-dir)"; pwd)" "$1" 1>/dev/null 2>/dev/null
+    if [ $CLONE_STATUS = 0 ] && [ ! -d "$CLONE_DIR" ]; then
+        git clone "$(cd "$(git rev-parse --git-dir)"; pwd)" "$CLONE_DIR" 1>/dev/null 2>/dev/null
         CLONE_STATUS=$?
 
-        [ $CLONE_STATUS != 0 ] && echo "GitPushy - Failed to clone to $1"
+        [ $CLONE_STATUS != 0 ] && echo "GitPushy - Failed to clone to $CLONE_DIR" >&2
     fi
 
     # change to new dir
     if [ $CLONE_STATUS = 0 ]; then
-        cd "$1" 2>/dev/null
+        cd "$CLONE_DIR" 2>/dev/null
         CLONE_STATUS=$?
 
-        [ $CLONE_STATUS != 0 ] && echo "GitPushy - Failed to change directory to $1"
+        [ $CLONE_STATUS != 0 ] && echo "GitPushy - Failed to change directory to $CLONE_DIR" >&2
     fi
 
     # reorient git and check status
@@ -626,7 +620,7 @@ gitpushy-clone-temp() {
         git status 1>/dev/null 2>/dev/null
         CLONE_STATUS=$?
 
-        [ $CLONE_STATUS != 0 ] && echo "GitPushy - Failed to git status of clone at $1"
+        [ $CLONE_STATUS != 0 ] && echo "GitPushy - Failed to git status of clone at $CLONE_DIR" >&2
     fi
 
     # update the remote to make sure we have all changes
@@ -643,7 +637,7 @@ gitpushy-clone-temp() {
         git checkout $PUSHY_BRANCH 1>/dev/null 2>/dev/null
         CLONE_STATUS=$?
 
-        [ $CLONE_STATUS != 0 ] && echo "GitPushy - Failed to checkout $PUSHY_BRANCH"
+        [ $CLONE_STATUS != 0 ] && echo "GitPushy - Failed to checkout $PUSHY_BRANCH" >&2
     fi
 
     # pull the latest changes
@@ -651,10 +645,10 @@ gitpushy-clone-temp() {
         git pull origin $PUSHY_BRANCH 1>/dev/null 2>/dev/null
         CLONE_STATUS=$?
 
-        [ $CLONE_STATUS != 0 ] && echo "GitPushy - Failed to pull $PUSHY_BRANCH"
+        [ $CLONE_STATUS != 0 ] && echo "GitPushy - Failed to pull $PUSHY_BRANCH" >&2
     fi
 
-    [ $CLONE_STATUS != 0 ] && echo "GitPushy - Exited cloning $1 with status $CLONE_STATUS"
+    [ $CLONE_STATUS != 0 ] && echo "GitPushy - Exited cloning $CLONE_DIR with status $CLONE_STATUS" >&2
 
     # return pushy status
     return $CLONE_STATUS
@@ -695,7 +689,7 @@ gitpushy-clean-temp() {
 gitpushy-script() {
     [ -z "$PUSHY_BRANCH" ] && PUSHY_BRANCH=$(gitpushy-branch-name)
 
-    gitpushy-cat .gitpushy/common/$1 .gitpushy/$PUSHY_BRANCH/$1 | grep -v "^\s*$"
+    gitpushy-cat .gitpushy/common/$1 .gitpushy/$PUSHY_BRANCH/$1 | grep -v '^\s*$' | grep -v '^#!.*\s*$'
 
     [ -n "$2" ] && gitpushy-script $2-$1 ${@:3}
 }
