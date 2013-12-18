@@ -588,7 +588,7 @@ gitpushy-push-replicate() {
 gitpushy-clone-temp() {
     local CLONE_STATUS=0
     local BRANCH_EXISTS=0
-    local CLONE_DIR="${1//~/$HOME}"
+    local CLONE_DIR="${1//\~/$HOME}"
 
     # set branch if it is not yet set
     [ -z "$PUSHY_BRANCH" ] && PUSHY_BRANCH="$(gitpushy-branch-name)"
