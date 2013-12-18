@@ -399,7 +399,7 @@ gitpushy-push-branch() {
     [ $PUSHY_STATUS = 0 ] && gitpushy-clone-temp $PUSHY_BUILD_DIR
 
     # report errors
-    [ $? != 0 ] && echo "GitPushy - Failed to clone repo to $PUSHY_BUILD_DIR" >&2 && PUSHY_STATUS=$?
+    [ $? != 0 ] && echo "GitPushy - Failed to clone repo to $PUSHY_BUILD_DIR" >&2 && PUSHY_STATUS=500
 
     if [ $PUSHY_STATUS != 0 ]; then
         # Force to keep build dir
