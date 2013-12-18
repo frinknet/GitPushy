@@ -455,44 +455,114 @@ gitpushy-push-branch() {
 ##
 # Replicate to another Server
 #
-# @usage gitpushy-push-replicate {hostname} [ {hostname} ...]
+# @usage gitpushy-push-replicate {hostname}
 #
 gitpushy-push-replicate() {
-    [ -z "$1" ] && return 402
+    local REPLICA_STATUS=0
+    local REPLICA_SERVER="$1"
+    local REPLICA_REMOTE="replicate-$REPLICA_SERVER"
+    local REPLICA_BRANCH="replicate-$REPLICA_SERVER-$PUSHY_BRANCH"
+
+    # check to make sure we don't loop endlessly
+    [ -z "$REPLICA_SERVER" ]  && echo "GitPushy - No replication server specified" && return 402
     [ "$(gitpushy-committer)" = "GitPushy" ] && return 401
 
-    local SERVER=""
+    # check if replica server is local
+    if gitpushy-server-is-local $REPLICA_SERVER; then
+        return 0
+    fi
 
-    for SERVER in $@; do
-        if gitpushy-server-is-local $SERVER; then
-            continue
-        elif git status 1>/dev/null 2>/dev/null; then
-            echo "GitPushy - Syncronizing $1"
+    # check if we are in a repository
+    if [ $REPLICA_STATUS = 0 ]; then
+        git status 1>/dev/null 2>/dev/null
+        REPLICA_STATUS=$?
 
-            git remote add $1 ssh://$PUSHY_USER@$1:$PUSHY_PORT/$PUSHY_REPO
-            git checkout -b $1 1>/dev/null 2>/dev/null
-            git fetch $1 1>/dev/null 2>/dev/null
+        [ $REPLICA_STATUS != 0 ] && echo "GitPushy - Not a git repository $(pwd)"
+    fi
 
-            if [ $? != 0 ]; then
-                echo "GitPushy - Failed to fetch ssh://$PUSHY_USER@$1:$PUSHY_PORT/$PUSHY_REPO"
-            elif git merge --no-commit $1/$PUSHY_BRANCH $1 1>/dev/null 2>/dev/null; then
-                git commit --author="GitPushy <$PUSHY_USER@$PUSHY_SERVER>" --allow-empty -am "Auto-merged from $1 on $PUSHY_SERVER" 1>/dev/null 2>/dev/null
-                git push $1 $1:$PUSHY_BRANCH 1>/dev/null 2>/dev/null
+    # add branch and checkout
+    if [ $REPLICA_STATUS = 0 ]; then
+        echo "GitPushy - Syncronizing $REPLICA_SERVER"
 
-                if [ $? = 0 ]; then
-                    echo "GitPushy - Syncronization complete!"
-                else
-                    echo "GitPushy - Failed syncronize to $1 with status $?"
-                fi
-            else
-                git merge --abort 1>/dev/null 2>/dev/null
+        git branch "$REPLICA_BRANCH" 1>/dev/null 2>/dev/null
+        git checkout "$REPLICA_BRANCH" 1>/dev/null 2>/dev/null
+        REPLICA_STATUS=$?
 
-                echo "GitPushy - Cannot resolve merge conficts with remote $1 $PUSHY_BRANCH"
-            fi
+        [ $REPLICA_STATUS != 0 ] && echo "GitPushy - Cannot access branch $REPLICA_BRANCH"
+    fi
 
-            git checkout $PUSHY_BRANCH 1>/dev/null 2>/dev/null
+    # merge from PUSHY_BRANCH into REPLICA_BRANCH
+    if [ $REPLICA_STATUS = 0 ]; then
+        git reset --hard HEAD 1>/dev/null 2>/dev/null
+        git merge --no-commit "$PUSHY_BRANCH" 1>/dev/null 2>/dev/null
+        REPLICA_STATUS=$?
+
+        if [ $REPLICA_STATUS != 0 ]; then
+            echo "GitPushy - Failed to merge $PUSHY_BRANCH into $REPLICA_BRANCH"
+            git merge --abort 1>/dev/null 2>/dev/null
+            git reset --hard HEAD 1>/dev/null 2>/dev/null
+        else
+            git commit --author="GitPushy <$PUSHY_USER@$PUSHY_SERVER>" -am "Auto-merged from $PUSHY_BRANCH" 1>/dev/null 2>/dev/null
         fi
-    done
+    fi
+
+    # add remote and fetch
+    if [ $REPLICA_STATUS = 0 ]; then
+        git remote rm "$REPLICA_REMOTE" 1>/dev/null 2>/dev/null
+        git remote add "$REPLICA_REMOTE" "ssh://$PUSHY_USER@$REPLICA_SERVER:$PUSHY_PORT/$PUSHY_REPO" 1>/dev/null 2>/dev/null
+        git fetch "$REPLICA_REMOTE" 1>/dev/null 2>/dev/null
+        REPLICA_STATUS=$?
+
+        [ $REPLICA_STATUS != 0 ] "GitPushy - Failed to fetch $(git config --get "remote.$REPLICA_REMOTE.url")"
+    fi
+
+    # merge if exists from REPLICA_REMOTE/PUSHY_BRANCH into REPLICA_BRANCH
+    if [ $REPLICA_STATUS = 0 ] && [ -f "$GIT_DIR/refs/remotes/$REPLICA_REMOTE/$PUSHY_BRANCH" ]; then
+        git merge --no-commit "$REPLICA_REMOTE/$PUSHY_BRANCH" 1>/dev/null 2>/dev/null
+        REPLICA_STATUS=$?
+
+        if [ $REPLICA_STATUS != 0 ]; then
+            echo "GitPushy - Failed to merge $REPLICA_REMOTE/$PUSHY_BRANCH into $REPLICA_BRANCH"
+            git merge --abort 1>/dev/null 2>/dev/null
+            git reset --hard HEAD 1>/dev/null 2>/dev/null
+        else
+            git commit --author="GitPushy <$PUSHY_USER@$PUSHY_SERVER>" -am "Auto-merged from $PUSHY_BRANCH on $PUSHY_SERVER" 1>/dev/null 2>/dev/null
+        fi
+    fi
+
+    # push to remote server
+    if [ $REPLICA_STATUS = 0 ] && [ "$(gitpushy-committer)" = "GitPushy" ]; then
+        git push "$REPLICA_REMOTE" "$REPLICA_BRANCH:$PUSHY_BRANCH"
+        REPLICA_STATUS=$?
+
+        [ $REPLICA_STATUS != 0 ] "GitPushy - Failed to push $(git config --get "remote.$REPLICA_REMOTE.url")"
+    fi
+
+    # switch to PUSHY_BRANCH
+    git checkout "$PUSHY_BRANCH" 1>/dev/null 2>/dev/null
+
+    # merge back changes from REPLICA_BRANCH
+    if [ $REPLICA_STATUS = 0 ]; then
+        git merge --no-commit "$REPLICA_BRANCH" 1>/dev/null 2>/dev/null
+        REPLICA_STATUS=$?
+
+        if [ $REPLICA_STATUS != 0 ]; then
+            echo "GitPushy - Failed to merge $REPLICA_BRANCH into $REPLICA_BRANCH"
+            git merge --abort 1>/dev/null 2>/dev/null
+            git reset --hard HEAD
+        else
+            git commit --author="GitPushy - $REPLICA_BRANCH <$PUSHY_USER@$PUSHY_SERVER>" -am "Auto-merged from $PUSHY_BRANCH on $PUSHY_SERVER" 1>/dev/null 2>/dev/null
+        fi
+    fi
+
+    # report success
+    if [ $REPLICA_STATUS = 0 ]; then
+        echo "GitPushy - Syncronization to $REPLICA_SERVER complete!"
+    else
+        echo "GitPushy - Failed syncronize to $REPLICA_SERVER with status $REPLICA_STATUS"
+    fi
+
+    return $REPLICA_STATUS
 }
 
 ##
