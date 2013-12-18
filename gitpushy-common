@@ -394,14 +394,16 @@ gitpushy-push-branch() {
     local REPO_BARE=$PWD
 
     # make a switch to clean local clone
-    gitpushy-clone-temp $PUSHY_BUILD_DIR
+    [ $PUSHY_STATUS = 0 ] && gitpushy-clone-temp $PUSHY_BUILD_DIR
 
     # report errors
-    [ $? != 0 ] && echo "GitPushy - Failed to clone repo to $PUSHY_BUILD_DIR" >&2 && return $?
+    [ $? != 0 ] && echo "GitPushy - Failed to clone repo to $PUSHY_BUILD_DIR" >&2 && PUSHY_STATUS=$?
 
-    # Process GitPushy Branch Hooks
-    if [ -f $REPO_BARE/hooks/gitpushy-$PUSHY_BRANCH-branch ]; then
-        # run branch hook
+    if [ $PUSHY_STATUS != 0 ]; then
+        # Force to keep build dir
+        PUSHY_BUILD_KEEP=1
+    elif [ -f $REPO_BARE/hooks/gitpushy-$PUSHY_BRANCH-branch ]; then
+        # Process GitPushy Branch Hook
         echo "GitPushy - Custom GitPushy Hook: pushy-$PUSHY_BRANCH-branch"
 
         local IO_OUT=gitpushy-$1-branch.output
@@ -414,7 +416,7 @@ gitpushy-push-branch() {
         PUSHY_STATUS=$?
         [ -s $IO_ERR ] && PUSHY_STATUS=500
     else
-        # run main trigger
+        # Process GitPushy Main Trigger
         gitpushy-trigger main
 
         # loop through addtional triggers
