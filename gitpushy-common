@@ -534,7 +534,7 @@ gitpushy-push-replicate() {
         git push "$REPLICA_REMOTE" "$REPLICA_BRANCH:$PUSHY_BRANCH" | sed "s/^remote/$REPLICA_SERVER/g"
         REPLICA_STATUS=${PIPESTATUS[0]}
 
-        [ $REPLICA_STATUS != 0 ] "GitPushy - Failed to push $(git config --get "remote.$REPLICA_REMOTE.url")"
+        [ $REPLICA_STATUS != 0 ] && echo "GitPushy - Failed to push $(git config --get "remote.$REPLICA_REMOTE.url")"
     fi
 
     # switch to PUSHY_BRANCH
