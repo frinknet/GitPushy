@@ -368,7 +368,7 @@ gitpushy-push-branch() {
     local REPO_BARE=$PWD
 
     # make sure we are in GIT_DIR
-    [ -n "$GIT_DIR" ] && [ "$(cd $GIT_DIR)" != "$PWD" ] && echo "GitPushy - Working Dir: $GIT_DIR" && cd "$GIT_DIR"
+    [ -n "$GIT_DIR" ] && [ "$(cd $GIT_DIR; pwd)" != "$PWD" ] && echo "GitPushy - cd $GIT_DIR" && cd "$GIT_DIR"
 
     # set GIT_DIR to PWD if not set
     [ -z "$GIT_DIR" ] && echo "GitPushy - Setting GIT_DIR to $PWD" && export GIT_DIR="$PWD"
