@@ -435,7 +435,7 @@ gitpushy-push-branch() {
     fi
 
     # report errors
-    [ $PUSHY_STATUS != 0 ] && echo "GitPushy - Unsuccessful push to branch $PUSHY_BRANCH - status $PUSHY_STATUS" >&2
+    [ $PUSHY_STATUS != 0 ] && echo "GitPushy - Unsuccessful build for $PUSHY_BRANCH with status $PUSHY_STATUS" >&2
 
     # is PUSHY_BUILD_KEEP specified
     if [ -n "$PUSHY_BUILD_KEEP" ]; then
@@ -649,7 +649,7 @@ gitpushy-clone-temp() {
         [ $CLONE_STATUS != 0 ] && echo "GitPushy - Failed to pull $PUSHY_BRANCH" >&2
     fi
 
-    [ $CLONE_STATUS != 0 ] && echo "GitPushy - Exited cloning $CLONE_DIR with status $CLONE_STATUS" >&2
+    [ $CLONE_STATUS != 0 ] && echo "GitPushy - Exited cloning $CLONE_DIR with status $CLONE_STATUS"
 
     # return pushy status
     return $CLONE_STATUS
