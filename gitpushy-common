@@ -642,7 +642,8 @@ gitpushy-clone-temp() {
 
     # pull the latest changes
     if [ $CLONE_STATUS = 0 ]; then
-        git diff -p -R | grep -E "^(diff|(old|new) mode)" | git apply
+        git config --local core.fileMode false
+        #git diff -p -R | grep -E "^(diff|(old|new) mode)" | git apply
         git pull origin $PUSHY_BRANCH 1>/dev/null 2>/dev/null
         CLONE_STATUS=$?
 
