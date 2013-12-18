@@ -432,10 +432,10 @@ gitpushy-push-branch() {
     [ -z "$PUSHY_BUILD_KEEP" ] && gitpushy-clean-temp $PUSHY_BUILD_DIR
 
     # switch to bare repo
-    [ -n "$PUSHY_BARE" ] && cd $PUSHY_BARE
+    [ -n "$REPO_BARE" ] && cd $REPO_BARE
 
     # report errors
-    [ $? != 0 ] && echo "GitPushy - Failed to remove $PUSHY_BUILD_DIR" >&2 && return $?
+    [ $? != 0 ] && echo "GitPushy - Failed to find $REPO_BARE" >&2 && return $?
 
     # reset git orientation
     export GIT_DIR=$REPO_DIR
