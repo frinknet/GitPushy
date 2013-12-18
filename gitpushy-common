@@ -545,7 +545,7 @@ gitpushy-clone-temp() {
     fi
 
     # checkout track branch if one doesn't exist
-    if [ $CLONE_STATUS = 0 ] && [ $(git show-branch $PUSHY_BRANCH 1>/dev/null 2>/dev/null) = false ]; then
+    if [ $CLONE_STATUS = 0 ] && [ $(git show-branch $PUSHY_BRANCH 1>/dev/null 2>/dev/null; echo $?) = 0 ]; then
         git checkout -t origin/$PUSHY_BRANCH 1>/dev/null 2>/dev/null
         CLONE_STATUS=$?
 
@@ -640,7 +640,7 @@ gitpushy-repo-name() {
     local PUSHY_REPO="";
 
     # Make sure PUSHY_REPO is set
-    if [ $(git rev-parse --is-bare-repository) = true ]; then
+    if [ "$(git rev-parse --is-bare-repository)" = "true" ]; then
         PUSHY_REPO=$(basename "$PWD")
         PUSHY_REPO=${PUSHY_REPO%.git}
     else
