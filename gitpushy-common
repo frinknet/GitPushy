@@ -401,7 +401,7 @@ gitpushy-push-branch() {
 
     if [ $PUSHY_STATUS != 0 ]; then
         # Force to keep build dir
-        PUSHY_BUILD_KEEP=1
+        PUSHY_BUILD_KEEP="true"
     elif [ -f $REPO_BARE/hooks/gitpushy-$PUSHY_BRANCH-branch ]; then
         # Process GitPushy Branch Hook
         echo "GitPushy - Custom GitPushy Hook: pushy-$PUSHY_BRANCH-branch"
