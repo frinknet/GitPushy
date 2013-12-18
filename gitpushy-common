@@ -421,7 +421,7 @@ gitpushy-push-branch() {
         echo "=========="
 
         # capture exit status
-        [ -s $IO_ERR ] && PUSHY_STATUS=500
+        [ $PUSHY_STATUS = 0 ] && [ -s $IO_ERR ] && PUSHY_STATUS=500
     else
         # Process GitPushy Main Trigger
         gitpushy-trigger main
@@ -537,8 +537,14 @@ gitpushy-push-replicate() {
     if [ $REPLICA_STATUS = 0 ] && [ "$(gitpushy-committer)" = "GitPushy" ]; then
         echo "----------"
 
-        git push "$REPLICA_REMOTE" "$REPLICA_BRANCH:$PUSHY_BRANCH" > >(grep "^remote" | sed -e "s/^remote: //g")
-        REPLICA_STATUS=$?
+        local IO_OUT=gitpushy-$REPLICA_BRANCH.output
+        local IO_ERR=gitpushy-$REPLICA_BRANCH.error
+
+        git push "$REPLICA_REMOTE" "$REPLICA_BRANCH:$PUSHY_BRANCH" 1> >(tee $IO_OUT) 2> >(tee $IO_ERR) | grep "^remote" | sed -e "s/^remote: //g"
+        REPLICA_STATUS=${PIPESTATUS[0]}
+
+        # capture exit status
+        [ $PUSHY_STATUS = 0 ] && [ -s $IO_ERR ] && PUSHY_STATUS=500
 
         echo "----------"
 
