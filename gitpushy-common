@@ -464,14 +464,14 @@ gitpushy-push-replicate() {
     local REPLICA_REMOTE="replicate-$REPLICA_SERVER"
     local REPLICA_BRANCH="replicate-$REPLICA_SERVER-$PUSHY_BRANCH"
 
-    # check to make sure we don't loop endlessly
-    [ "$(gitpushy-committer)" = "GitPushy" ] && return 401
-
     #check to make sure we have a server specified
     [ -z "$REPLICA_SERVER" ]  && echo "GitPushy - No replication server specified" && return 402
 
     # check if replica server is local
     gitpushy-server-is-local "$REPLICA_SERVER" && return 0
+
+    # check to make sure we don't loop endlessly
+    [ "$(gitpushy-committer)" = "GitPushy" ] && return 508
 
     # check if we are in a repository
     git status 1>/dev/null 2>/dev/null
