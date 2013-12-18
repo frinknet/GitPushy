@@ -360,7 +360,7 @@ gitpushy-push-branch() {
     export PUSHY_TRIGGERS=()
     export PUSHY_TRIGGER=""
     export PUSHY_PORT=22
-    export PUSHY_USER=$(whoami)
+    export PUSHY_USER="$(whoami)"
     export PUSHY_REPO="$(gitpushy-repo-name)"
 
     # remember current repo settings
@@ -379,8 +379,10 @@ gitpushy-push-branch() {
     # check if branch exists
     [ ! -f $GIT_DIR/refs/heads/$PUSHY_BRANCH ] && echo "GitPushy - branch does not exist - $PUSHY_REPO:$PUSHY_BRANCH" && return 500
 
-    # prepare pushy config script
+    # prepare config script
     PUSHY_CONFIG="$(gitpushy-script config main)"
+
+    # prepare custom script
     PUSHY_CUSTOM="$(gitpushy-script custom main)"
 
     # check if this branch has gitpushy data
