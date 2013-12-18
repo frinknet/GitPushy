@@ -366,15 +366,16 @@ gitpushy-push-branch() {
     # remember current repo settings
     local OLD_GIT_DIR="$GIT_DIR"
     local OLD_PWD_DIR="$(pwd)"
+    local REPO_GIT="$(cd "$(git rev-parse --git-dir)"; pwd)"
 
     # set GIT_DIR to PWD if not set
-    export GIT_DIR="$(cd "$(git rev-parse --git-dir)"; pwd)"
+    export GIT_DIR="$REPO_GIT"
 
     # check if branch was passed
     [ -z "$PUSHY_BRANCH" ] && echo "GitPushy - branch was not passed to gitpushy-push-branch" && return 500
 
     # check if branch exists
-    [ ! -f "$GIT_DIR/refs/heads/$PUSHY_BRANCH" ] && echo "GitPushy - branch does not exist - $PUSHY_REPO:$PUSHY_BRANCH" && return 500
+    [ ! -f "$REPO_GIT/refs/heads/$PUSHY_BRANCH" ] && echo "GitPushy - branch does not exist - $PUSHY_REPO:$PUSHY_BRANCH" && return 500
 
     # prepare config script
     PUSHY_CONFIG="$(gitpushy-script config main)"
@@ -383,28 +384,29 @@ gitpushy-push-branch() {
     PUSHY_CUSTOM="$(gitpushy-script custom main)"
 
     # check if this branch has gitpushy data
-    [ ! -f "$GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch" ] && [ -z "$PUSHY_CONFIG$PUSHY_CUSTOM" ] && echo "No GitPushy for $PUSHY_REPO:$PUSHY_BRANCH" && return 0
+    [ ! -f "$REPO_GIT/hooks/gitpushy-$PUSHY_BRANCH-branch" ] && [ -z "$PUSHY_CONFIG$PUSHY_CUSTOM" ] && echo "No GitPushy for $PUSHY_REPO:$PUSHY_BRANCH" && return 0
 
     local IO_OUT=gitpushy-$1-config.output
     local IO_ERR=gitpushy-$1-config.error
 
     # run config scripts for deployment
     eval "$PUSHY_CONFIG" 1> >(tee $IO_OUT) 2> >(tee $IO_ERR)> >(tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-config - {}")
+    PUSHY_STATUS=$?
 
     # capture exit status
-    PUSHY_STATUS=$?
     [ $PUSHY_STATUS = 0 ] && [ -s $IO_ERR ] && PUSHY_STATUS=500
 
     # make a switch to clean local clone
     [ $PUSHY_STATUS = 0 ] && gitpushy-clone-temp $PUSHY_BUILD_DIR
+    local CLONE_STATUS=$?
 
     # report errors
-    [ $? != 0 ] && echo "GitPushy - Failed to clone repo to $PUSHY_BUILD_DIR" >&2 && PUSHY_STATUS=500
+    [ $CLONE_STATUS != 0 ] && echo "GitPushy - Failed to clone repo to $PUSHY_BUILD_DIR" >&2 && PUSHY_STATUS=$CLONE_STATUS
 
     if [ $PUSHY_STATUS != 0 ]; then
         # Force to keep build dir
         PUSHY_BUILD_KEEP=1
-    elif [ -f "$GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch" ]; then
+    elif [ -f "$REPO_GIT/hooks/gitpushy-$PUSHY_BRANCH-branch" ]; then
         # Process GitPushy Branch Hook
         echo "GitPushy - Custom GitPushy Hook: gitpushy-$PUSHY_BRANCH-branch"
 
@@ -412,7 +414,7 @@ gitpushy-push-branch() {
         local IO_ERR=gitpushy-$1-branch.error
 
         # run branch hook
-        (source "$GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch" 1> >(tee $IO_OUT) 2> >(tee $IO_ERR))
+        (source "$REPO_GIT/hooks/gitpushy-$PUSHY_BRANCH-branch" 1> >(tee $IO_OUT) 2> >(tee $IO_ERR))
 
         # capture exit status
         PUSHY_STATUS=$?
@@ -510,7 +512,7 @@ gitpushy-clone-temp() {
 
     # make a clean local clone
     if [ $CLONE_STATUS = 0 ] && [ ! -d "$1" ]; then
-        git clone "$GIT_DIR" "$1" 1>/dev/null 2>/dev/null
+        git clone "$(cd "$(git rev-parse --git-dir)"; pwd)" "$1" 1>/dev/null 2>/dev/null
         CLONE_STATUS=$?
 
         [ $CLONE_STATUS != 0 ] && echo "GitPushy - Failed to clone to $1"
@@ -526,7 +528,7 @@ gitpushy-clone-temp() {
 
     # reorient git and check status
     if [ $CLONE_STATUS = 0 ]; then
-        echo "GitPushy - Working Dir: $(pwd)"
+        #echo "GitPushy - Working Dir: $(pwd)"
         export GIT_DIR="$(pwd)/.git"
 
         git status 1>/dev/null 2>/dev/null
@@ -560,7 +562,7 @@ gitpushy-clone-temp() {
         [ $CLONE_STATUS != 0 ] && echo "GitPushy - Failed to pull $PUSHY_BRANCH"
     fi
 
-    echo "GitPushy - Exited cloning $1 with status $CLONE_STATUS"
+    [ $CLONE_STATUS != 0 ] && echo "GitPushy - Exited cloning $1 with status $CLONE_STATUS"
 
     # return pushy status
     return $CLONE_STATUS
@@ -587,9 +589,7 @@ gitpushy-clean-temp() {
     fi
 
     # echo status
-    if [ $CLEAN_STATUS != 0 ]; then
-        echo "GitPushy - Exited clean-up $1 with status $CLEAN_STATUS"
-    fi
+    [ $CLEAN_STATUS != 0 ] && echo "GitPushy - Exited clean-up $1 with status $CLEAN_STATUS"
 
     # return pushy status
     return $CLEAN_STATUS
