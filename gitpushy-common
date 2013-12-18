@@ -190,6 +190,7 @@ gitpushy-build() {
         git reset --hard HEAD 1>/dev/null
     ' >> $IO_CMD
 
+    # add repo build scripts
     gitpushy-script build $1 | sed 's/^/        /' >> $IO_CMD
 
     if [ -z "$PUSHY_SAME_DIR" ]; then
@@ -246,6 +247,7 @@ gitpushy-stage() {
         [ $? != 0 ] && echo "directory does not exist - $PUSHY_STAGE_DIR" >&2 && exit 404
     ' >> $IO_CMD
 
+    # add repo stage scripts
     gitpushy-script stage $1 | sed 's/^/        /' >> $IO_CMD
 
     echo 'exit $PUSHY_STATUS' >> $IO_CMD
@@ -303,6 +305,7 @@ gitpushy-deploy() {
             [ $? != 0 ] && echo "Deployment failed to $PUSHY_DEPLOY_DIR" >&2 && PUSHY_STATUS=404
     ' >> $IO_CMD
 
+    # add repo deploy scripts
     gitpushy-script deploy $1 | sed 's/^/            /' >> $IO_CMD
 
     echo '
