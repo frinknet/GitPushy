@@ -603,7 +603,7 @@ gitpushy-clean-temp() {
 gitpushy-script() {
     [ -z "$PUSHY_BRANCH" ] && PUSHY_BRANCH=$(gitpushy-branch-name)
 
-    gitpushy-cat .gitpushy/common/$1 .gitpushy/$PUSHY_BRANCH/$1
+    gitpushy-cat .gitpushy/common/$1 .gitpushy/$PUSHY_BRANCH/$1 | grep -v "^\s*$"
 
     [ -n "$2" ] && gitpushy-script $2-$1 ${@:3}
 }
@@ -618,9 +618,9 @@ gitpushy-cat() {
     [ -z "$PUSHY_BRANCH" ] && PUSHY_BRANCH=$(gitpushy-branch-name)
 
     # cat files in repo
-    grep -v "^\s*$" <(for file in $@; do
+     for file in $@; do
         git show refs/heads/$PUSHY_BRANCH:$file 2>/dev/null
-    done)
+    done
 }
 
 ##
