@@ -503,6 +503,7 @@ gitpushy-push-replicate() {
 #
 gitpushy-clone-temp() {
     local CLONE_STATUS=0
+    local BRANCH_EXISTS=0
 
     # set branch if it is not yet set
     [ -z "$PUSHY_BRANCH" ] && PUSHY_BRANCH=$(gitpushy-branch-name)
@@ -547,15 +548,9 @@ gitpushy-clone-temp() {
     fi
 
     # checkout track branch if one doesn't exist
-    if [ $CLONE_STATUS = 0 ] && [ "$(git show-branch $PUSHY_BRANCH 1>/dev/null 2>/dev/null; echo $?)" != 0 ]; then
-        git checkout -t origin/$PUSHY_BRANCH 1>/dev/null 2>/dev/null
-        CLONE_STATUS=$?
-
-        [ $CLONE_STATUS != 0 ] && echo "GitPushy - Failed to find branch origin/$PUSHY_BRANCH"
-    fi
-
-    # checkout branch
     if [ $CLONE_STATUS = 0 ]; then
+        git checkout -t origin/$PUSHY_BRANCH 1>/dev/null 2>/dev/null
+
         git checkout $PUSHY_BRANCH 1>/dev/null 2>/dev/null
         CLONE_STATUS=$?
 
