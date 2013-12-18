@@ -547,7 +547,7 @@ gitpushy-clone-temp() {
     fi
 
     # checkout track branch if one doesn't exist
-    if [ $CLONE_STATUS = 0 ] && [ "$(git show-branch $PUSHY_BRANCH; echo $?)" = 0 ]; then
+    if [ $CLONE_STATUS = 0 ] && [ "$(git show-branch $PUSHY_BRANCH 2>/dev/null; echo $?)" = 0 ]; then
         git checkout -t origin/$PUSHY_BRANCH 1>/dev/null 2>/dev/null
         CLONE_STATUS=$?
 
