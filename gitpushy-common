@@ -350,7 +350,7 @@ gitpushy-push-branch() {
     export PUSHY_DEPLOY_ARCHIVE="~/$PUSHY_REPO-$(date +%Y%m%d-%H%M%S)"
     export PUSHY_DEPLOY_DIR=""
     export PUSHY_BUILD_KEEP=""
-    export PUSHY_BUILD_DIR="/tmp/pushy-$1-build.$RANDOM$RANDOM"
+    export PUSHY_BUILD_DIR="/tmp/pushy-build-$PUSHY_REPO-$1-$(date +%Y%m%d-%H%M%S)-$RANDOM"
     export PUSHY_STAGE_DIR="~/pushy-staging-$PUSHY_REPO-$1"
     export PUSHY_VERBOSE=0
     export PUSHY_STATUS=0
@@ -412,7 +412,7 @@ gitpushy-push-branch() {
         PUSHY_BUILD_KEEP=1
     elif [ -f "$REPO_GIT/hooks/gitpushy-$PUSHY_BRANCH-branch" ]; then
         # Process GitPushy Branch Hook
-        echo "GitPushy - Custom GitPushy Hook: pushy-$PUSHY_BRANCH-branch"
+        echo "GitPushy - Custom GitPushy Hook: gitpushy-$PUSHY_BRANCH-branch"
 
         local IO_OUT=gitpushy-$1-branch.output
         local IO_ERR=gitpushy-$1-branch.error
