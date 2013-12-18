@@ -365,22 +365,16 @@ gitpushy-push-branch() {
 
     # remember current repo settings
     local OLD_GIT_DIR="$GIT_DIR"
-    local OLD_PWD_DIR="$PWD"
-
-    # make sure we are in GIT_DIR
-    [ -n "$GIT_DIR" ] && [ "$(cd "$GIT_DIR"; pwd)" != "$PWD" ] && cd "$GIT_DIR"
-
-    # set git dir
-    local REPO_GIT="$PWD"
+    local OLD_PWD_DIR="$(pwd)"
 
     # set GIT_DIR to PWD if not set
-    [ -z "$GIT_DIR" ] && echo "GitPushy - Setting GIT_DIR to $PWD" && export GIT_DIR="$PWD"
+    export GIT_DIR="$(cd "$(git rev-parse --git-dir)"; pwd)"
 
     # check if branch was passed
     [ -z "$PUSHY_BRANCH" ] && echo "GitPushy - branch was not passed to gitpushy-push-branch" && return 500
 
     # check if branch exists
-    [ ! -f "$REPO_GIT/refs/heads/$PUSHY_BRANCH" ] && echo "GitPushy - branch does not exist - $PUSHY_REPO:$PUSHY_BRANCH" && return 500
+    [ ! -f "$GIT_DIR/refs/heads/$PUSHY_BRANCH" ] && echo "GitPushy - branch does not exist - $PUSHY_REPO:$PUSHY_BRANCH" && return 500
 
     # prepare config script
     PUSHY_CONFIG="$(gitpushy-script config main)"
@@ -389,7 +383,7 @@ gitpushy-push-branch() {
     PUSHY_CUSTOM="$(gitpushy-script custom main)"
 
     # check if this branch has gitpushy data
-    [ ! -f "$REPO_GIT/hooks/gitpushy-$PUSHY_BRANCH-branch" ] && [ -z "$PUSHY_CONFIG$PUSHY_CUSTOM" ] && echo "No GitPushy for $PUSHY_REPO:$PUSHY_BRANCH" && return 0
+    [ ! -f "$GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch" ] && [ -z "$PUSHY_CONFIG$PUSHY_CUSTOM" ] && echo "No GitPushy for $PUSHY_REPO:$PUSHY_BRANCH" && return 0
 
     local IO_OUT=gitpushy-$1-config.output
     local IO_ERR=gitpushy-$1-config.error
@@ -410,7 +404,7 @@ gitpushy-push-branch() {
     if [ $PUSHY_STATUS != 0 ]; then
         # Force to keep build dir
         PUSHY_BUILD_KEEP=1
-    elif [ -f "$REPO_GIT/hooks/gitpushy-$PUSHY_BRANCH-branch" ]; then
+    elif [ -f "$GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch" ]; then
         # Process GitPushy Branch Hook
         echo "GitPushy - Custom GitPushy Hook: gitpushy-$PUSHY_BRANCH-branch"
 
@@ -418,7 +412,7 @@ gitpushy-push-branch() {
         local IO_ERR=gitpushy-$1-branch.error
 
         # run branch hook
-        (source "$REPO_GIT/hooks/gitpushy-$PUSHY_BRANCH-branch" 1> >(tee $IO_OUT) 2> >(tee $IO_ERR))
+        (source "$GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch" 1> >(tee $IO_OUT) 2> >(tee $IO_ERR))
 
         # capture exit status
         PUSHY_STATUS=$?
@@ -435,7 +429,7 @@ gitpushy-push-branch() {
 
     # is PUSHY_BUILD_KEEP specified
     if [ -n "$PUSHY_BUILD_KEEP" ]; then
-        echo "GitPushy - Keeping build directory $1"
+        echo "GitPushy - Keeping Dir: $PUSHY_BUILD_DIR"
     else
         gitpushy-clean-temp $PUSHY_BUILD_DIR
     fi
@@ -516,7 +510,7 @@ gitpushy-clone-temp() {
 
     # make a clean local clone
     if [ $CLONE_STATUS = 0 ] && [ ! -d "$1" ]; then
-        git clone . $1 1>/dev/null 2>/dev/null
+        git clone "$GIT_DIR" "$1" 1>/dev/null 2>/dev/null
         CLONE_STATUS=$?
 
         [ $CLONE_STATUS != 0 ] && echo "GitPushy - Failed to clone to $1"
@@ -524,7 +518,7 @@ gitpushy-clone-temp() {
 
     # change to new dir
     if [ $CLONE_STATUS = 0 ]; then
-        cd $1
+        cd "$1"
         CLONE_STATUS=$?
 
         [ $CLONE_STATUS != 0 ] && echo "GitPushy - Failed to change directory to $1"
@@ -533,8 +527,7 @@ gitpushy-clone-temp() {
     # reorient git and check status
     if [ $CLONE_STATUS = 0 ]; then
         echo "GitPushy - Working Dir: $(pwd)"
-
-        export GIT_DIR=$1/.git
+        export GIT_DIR="$(cd "$(git rev-parse --git-dir)"; pwd)"
 
         git status 1>/dev/null 2>/dev/null
         CLONE_STATUS=$?
@@ -553,7 +546,6 @@ gitpushy-clone-temp() {
     # checkout track branch if one doesn't exist
     if [ $CLONE_STATUS = 0 ]; then
         git checkout -t origin/$PUSHY_BRANCH 1>/dev/null 2>/dev/null
-
         git checkout $PUSHY_BRANCH 1>/dev/null 2>/dev/null
         CLONE_STATUS=$?
 
@@ -641,11 +633,12 @@ gitpushy-repo-name() {
 
     # Make sure PUSHY_REPO is set
     if [ "$(git rev-parse --is-bare-repository)" = "true" ]; then
-        PUSHY_REPO=$(basename "$PWD")
-        PUSHY_REPO=${PUSHY_REPO%.git}
+        PUSHY_REPO="$(basename "$PWD")"
     else
-        PUSHY_REPO=$(basename $(readlink -nf "$PWD"/..))
+        PUSHY_REPO="$(basename "$(readlink -nf "$PWD"/..)")"
     fi
+
+    PUSHY_REPO="${PUSHY_REPO%.git}"
 
     echo $PUSHY_REPO;
 }
