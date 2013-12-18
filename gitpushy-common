@@ -371,7 +371,7 @@ gitpushy-push-branch() {
     [ -n "$GIT_DIR" ] && [ "$GIT_DIR" != "$PWD" ] && echo "GitPushy - Working directory: $GIT_DIR" && cd "$GIT_DIR"
 
     # set GIT_DIR to PWD if not set
-    [ -z "$GIT_DIR" ] && echo "GitPushy - GIT_DIR was not set - $PWD" && export GIT_DIR="$PWD"
+    [ -z "$GIT_DIR" ] && echo "GitPushy - Setting GIT_DIR to $PWD" && export GIT_DIR="$PWD"
 
     # check if branch was passed
     [ -z "$PUSHY_BRANCH" ] && echo "GitPushy - branch was not passed to gitpushy-push-branch" && return 500
