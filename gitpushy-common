@@ -273,7 +273,7 @@ gitpushy-deploy() {
         echo 'if [ $? != 0 ]; then' >> $IO_CMD
         echo 'echo "Deploying to blank directory: $PUSHY_DEPLOY_DIR"' >> $IO_CMD
         echo 'elif [ -n "$PUSHY_DEPLOY_HOTSWAP" ]; then' >> $IO_CMD
-        echo 'OLD_HOTSWAP=$(readlink $PUSHY_DEPLOY_DIR)' >> $IO_CMD
+        echo 'OLD_HOTSWAP=$(gitpushy-absolute-path $PUSHY_DEPLOY_DIR)' >> $IO_CMD
         echo 'elif [ -n "$PUSHY_DEPLOY_ARCHIVE" ]; then' >> $IO_CMD
         echo 'tar czf "$PUSHY_DEPLOY_ARCHIVE.tgz" .' >> $IO_CMD
         echo 'fi' >> $IO_CMD
@@ -633,9 +633,9 @@ gitpushy-repo-name() {
 
     # Make sure PUSHY_REPO is set
     if [ "$(git rev-parse --is-bare-repository)" = "true" ]; then
-        PUSHY_REPO="$(basename "$PWD")"
+        PUSHY_REPO="$(basename "$(gitpushy-absolute-path "$(git rev-parse --git-dir)")")"
     else
-        PUSHY_REPO="$(basename "$(readlink -nf "$PWD"/..)")"
+        PUSHY_REPO="$(basename "$(gitpushy-absolute-path "$(git rev-parse --git-dir)/..")")"
     fi
 
     PUSHY_REPO="${PUSHY_REPO%.git}"
@@ -707,4 +707,28 @@ gitpushy-server-is-local() {
     fi
 
     return 1
+}
+
+##
+# Replacement for readlink -f
+#
+# @usage gitpushy-absolute-path {file}
+#
+gitpushy-absolute-path() {
+    local FILE="$1"
+
+    # loop through symlinks
+    while [ -L "$FILE" ]; do
+        # get new full name
+        FILE="$(readlink $FILE)"
+        echo $FILE
+    done
+
+    # handle directories
+    if [ -d "$FILE" ]; then
+      FILE="$(cd "$FILE"; pwd)"
+    fi
+
+    # get final DIR
+    echo "$(cd "$(dirname "$FILE")"; pwd -P)/$(basename $FILE)"
 }
