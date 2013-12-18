@@ -185,9 +185,9 @@ gitpushy-build() {
 
     # prepare pushy build script
     echo '
-    cd "$PUSHY_BUILD_DIR" 2>/dev/null
-    [ $? != 0 ] && echo "directory does not exist - $PUSHY_BUILD_DIR" >&2 && exit 404
-    git reset --hard HEAD 1>/dev/null
+        cd "$PUSHY_BUILD_DIR" 2>/dev/null
+        [ $? != 0 ] && echo "directory does not exist - $PUSHY_BUILD_DIR" >&2 && exit 404
+        git reset --hard HEAD 1>/dev/null
     ' >> $IO_CMD
 
     gitpushy-script build $1 >> $IO_CMD
@@ -241,9 +241,13 @@ gitpushy-stage() {
     " > $IO_CMD
 
     # prepare pushy stage script
-    echo 'cd "$PUSHY_STAGE_DIR" 2>/dev/null' >> $IO_CMD
-    echo '[ $? != 0 ] && echo "directory does not exist - $PUSHY_STAGE_DIR" >&2 && exit 404' >> $IO_CMD
+    echo '
+        cd "$PUSHY_STAGE_DIR" 2>/dev/null
+        [ $? != 0 ] && echo "directory does not exist - $PUSHY_STAGE_DIR" >&2 && exit 404
+    ' >> $IO_CMD
+
     gitpushy-script stage $1 >> $IO_CMD
+
     echo 'exit $PUSHY_STATUS' >> $IO_CMD
 
     # show commands run if verbosity is set
@@ -356,7 +360,7 @@ gitpushy-deploy() {
         echo ' - no hot swaps'
         echo ' - no archiving'
         gitpushy-transact
-        ' >> $IO_CMD
+        " >> $IO_CMD
     else
         echo '
         [ $PUSHY_STATUS = 0 ] && gitpushy-setup
