@@ -363,8 +363,15 @@ gitpushy-push-branch() {
     export PUSHY_USER=$(whoami)
     export PUSHY_REPO="$(gitpushy-repo-name)"
 
+    # remember current repo settings
+    local REPO_DIR=$GIT_DIR
+    local REPO_BARE=$PWD
+
+    # make sure we are in GIT_DIR
+    [ -n "$GIT_DIR" ] && [ "$GIT_DIR" != "$PWD" ] && echo "GitPushy - Working directory: $GIT_DIR" && cd "$GIT_DIR"
+
     # set GIT_DIR to PWD if not set
-    [ -z "$GIT_DIR" ] && echo "GIT_DIR was not set - $PWD" && export GIT_DIR="$PWD"
+    [ -z "$GIT_DIR" ] && echo "GitPushy - GIT_DIR was not set - $PWD" && export GIT_DIR="$PWD"
 
     # check if branch was passed
     [ -z "$PUSHY_BRANCH" ] && echo "GitPushy - branch was not passed to gitpushy-push-branch" && return 500
@@ -389,10 +396,6 @@ gitpushy-push-branch() {
     PUSHY_STATUS=$?
     [ $PUSHY_STATUS = 0 ] && [ -s $IO_ERR ] && PUSHY_STATUS=500
 
-    # remember current repo settings
-    local REPO_DIR=$GIT_DIR
-    local REPO_BARE=$PWD
-
     # make a switch to clean local clone
     [ $PUSHY_STATUS = 0 ] && gitpushy-clone-temp $PUSHY_BUILD_DIR
 
@@ -402,7 +405,7 @@ gitpushy-push-branch() {
     if [ $PUSHY_STATUS != 0 ]; then
         # Force to keep build dir
         PUSHY_BUILD_KEEP="true"
-    elif [ -f $REPO_BARE/hooks/gitpushy-$PUSHY_BRANCH-branch ]; then
+    elif [ -f $GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch ]; then
         # Process GitPushy Branch Hook
         echo "GitPushy - Custom GitPushy Hook: pushy-$PUSHY_BRANCH-branch"
 
@@ -410,7 +413,7 @@ gitpushy-push-branch() {
         local IO_ERR=gitpushy-$1-branch.error
 
         # run branch hook
-        (source $REPO_BARE/hooks/gitpushy-$PUSHY_BRANCH-branch 1> >(tee $IO_OUT) 2> >(tee $IO_ERR))
+        (source $GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch 1> >(tee $IO_OUT) 2> >(tee $IO_ERR))
 
         # capture exit status
         PUSHY_STATUS=$?
@@ -420,6 +423,7 @@ gitpushy-push-branch() {
         gitpushy-trigger main
 
         # loop through addtional triggers
+        # loop through addtional triggers if there is no error
         [ $PUSHY_STATUS = 0 ] && for PUSHY_TRIGGER in ${PUSHY_TRIGGERS[@]}; do
             gitpushy-trigger $PUSHY_TRIGGER
         done
@@ -438,8 +442,11 @@ gitpushy-push-branch() {
     [ $? != 0 ] && echo "GitPushy - Failed to find $REPO_BARE" >&2 && return $?
 
     # reset git orientation
-    export GIT_DIR=$REPO_DIR
-    cd $REPO_BARE
+    if [ -n "$REPO_DIR" ]; then
+        export GIT_DIR=$REPO_DIR
+    else
+        unset GIT_DIR
+    fi
 
     return $PUSHY_STATUS
 }
