@@ -487,7 +487,7 @@ gitpushy-push-replicate() {
         git checkout "$REPLICA_BRANCH" 1>/dev/null 2>/dev/null
         REPLICA_STATUS=$?
 
-        [ $REPLICA_STATUS != 0 ] && echo "GitPushy - Cannot access branch $REPLICA_BRANCH"
+        [ $REPLICA_STATUS != 0 ] && echo "GitPushy - Cannot access branch $REPLICA_BRANCH" 2>&
     fi
 
     # merge from PUSHY_BRANCH into REPLICA_BRANCH
@@ -533,8 +533,8 @@ gitpushy-push-replicate() {
     if [ $REPLICA_STATUS = 0 ] && [ "$(gitpushy-committer)" = "GitPushy" ]; then
         echo "----------"
 
-        git push "$REPLICA_REMOTE" "$REPLICA_BRANCH:$PUSHY_BRANCH" 2>&1 | grep "^remote" | sed -e "s/^remote: //g"
-        REPLICA_STATUS=${PIPESTATUS[0]}
+        git push "$REPLICA_REMOTE" "$REPLICA_BRANCH:$PUSHY_BRANCH" #2>&1 | grep "^remote" | sed -e "s/^remote: //g"
+        REPLICA_STATUS=$?
 
         echo "----------"
 
