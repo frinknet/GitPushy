@@ -429,6 +429,9 @@ gitpushy-push-branch() {
         done
     fi
 
+    # report errors
+    [ $PUSHY_STATUS != 0 ] && echo "GitPushy - Unsuccessful push to branch $PUSHY_BRANCH - status $PUSHY_STATUS" >&2
+
     # is PUSHY_BUILD_KEEP specified
     if [ -n "$PUSHY_BUILD_KEEP" ]; then
         echo "GitPushy - Keeping Dir: $PUSHY_BUILD_DIR"
@@ -439,9 +442,6 @@ gitpushy-push-branch() {
     # switch to bare repo
     [ -n "$OLD_PWD_DIR" ] && cd $OLD_PWD_DIR
     [ $? != 0 ] && echo "GitPushy - Failed to find $OLD_PWD_DIR" >&2 && return $?
-
-    # report errors
-    [ $PUSHY_STATUS != 0 ] && echo "GitPushy - Unsuccessful push to branch $PUSHY_BRANCH - status $PUSHY_STATUS" >&2
 
     # reset git orientation
     if [ -n "$OLD_GIT_DIR" ]; then
