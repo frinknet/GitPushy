@@ -416,7 +416,6 @@ gitpushy-push-branch() {
         # run branch hook
         (source "$REPO_GIT/hooks/gitpushy-$PUSHY_BRANCH-branch" 1> >(tee $IO_OUT) 2> >(tee $IO_ERR))
 
-
         # capture exit status
         [ $PUSHY_STATUS = 0 ] && [ -s $IO_ERR ] && PUSHY_STATUS=500
     else
