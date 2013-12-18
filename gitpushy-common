@@ -367,10 +367,10 @@ gitpushy-push-branch() {
     [ -z "$GIT_DIR" ] && echo "GIT_DIR was not set - $PWD" && export GIT_DIR="$PWD"
 
     # check if branch was passed
-    [ -z "$PUSHY_BRANCH" ] && "GitPushy - branch was not passed to gitpushy-push-branch" && return 1
+    [ -z "$PUSHY_BRANCH" ] && echo "GitPushy - branch was not passed to gitpushy-push-branch" && return 500
 
     # check if branch exists
-    [ ! -f $GIT_DIR/refs/heads/$PUSHY_BRANCH ] && echo "GitPushy - branch does not exist - $PUSHY_REPO:$PUSHY_BRANCH" && return 1
+    [ ! -f $GIT_DIR/refs/heads/$PUSHY_BRANCH ] && echo "GitPushy - branch does not exist - $PUSHY_REPO:$PUSHY_BRANCH" && return 500
 
     # prepare pushy config script
     PUSHY_CONFIG="$(gitpushy-script config main)"
