@@ -364,11 +364,14 @@ gitpushy-push-branch() {
     export PUSHY_REPO="$(gitpushy-repo-name)"
 
     # remember current repo settings
-    local REPO_DIR=$GIT_DIR
-    local REPO_BARE=$PWD
+    local OLD_GIT_DIR="$GIT_DIR"
+    local OLD_PWD_DIR="$PWD"
 
     # make sure we are in GIT_DIR
-    [ -n "$GIT_DIR" ] && [ "$(cd $GIT_DIR; pwd)" != "$PWD" ] && echo "GitPushy - cd $GIT_DIR" && cd "$GIT_DIR"
+    [ -n "$GIT_DIR" ] && [ "$(cd "$GIT_DIR"; pwd)" != "$PWD" ] && cd "$GIT_DIR"
+
+    # set git dir
+    local REPO_GIT="$PWD"
 
     # set GIT_DIR to PWD if not set
     [ -z "$GIT_DIR" ] && echo "GitPushy - Setting GIT_DIR to $PWD" && export GIT_DIR="$PWD"
@@ -377,7 +380,7 @@ gitpushy-push-branch() {
     [ -z "$PUSHY_BRANCH" ] && echo "GitPushy - branch was not passed to gitpushy-push-branch" && return 500
 
     # check if branch exists
-    [ ! -f $GIT_DIR/refs/heads/$PUSHY_BRANCH ] && echo "GitPushy - branch does not exist - $PUSHY_REPO:$PUSHY_BRANCH" && return 500
+    [ ! -f "$REPO_GIT/refs/heads/$PUSHY_BRANCH" ] && echo "GitPushy - branch does not exist - $PUSHY_REPO:$PUSHY_BRANCH" && return 500
 
     # prepare config script
     PUSHY_CONFIG="$(gitpushy-script config main)"
@@ -386,7 +389,7 @@ gitpushy-push-branch() {
     PUSHY_CUSTOM="$(gitpushy-script custom main)"
 
     # check if this branch has gitpushy data
-    [ ! -f $GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch ] && [ -z "$PUSHY_CONFIG$PUSHY_CUSTOM" ] && echo "No GitPushy for $PUSHY_REPO:$PUSHY_BRANCH" && return 0
+    [ ! -f "$REPO_GIT/hooks/gitpushy-$PUSHY_BRANCH-branch" ] && [ -z "$PUSHY_CONFIG$PUSHY_CUSTOM" ] && echo "No GitPushy for $PUSHY_REPO:$PUSHY_BRANCH" && return 0
 
     local IO_OUT=gitpushy-$1-config.output
     local IO_ERR=gitpushy-$1-config.error
@@ -407,7 +410,7 @@ gitpushy-push-branch() {
     if [ $PUSHY_STATUS != 0 ]; then
         # Force to keep build dir
         PUSHY_BUILD_KEEP=1
-    elif [ -f $GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch ]; then
+    elif [ -f "$REPO_GIT/hooks/gitpushy-$PUSHY_BRANCH-branch" ]; then
         # Process GitPushy Branch Hook
         echo "GitPushy - Custom GitPushy Hook: pushy-$PUSHY_BRANCH-branch"
 
@@ -415,7 +418,7 @@ gitpushy-push-branch() {
         local IO_ERR=gitpushy-$1-branch.error
 
         # run branch hook
-        (source $GIT_DIR/hooks/gitpushy-$PUSHY_BRANCH-branch 1> >(tee $IO_OUT) 2> >(tee $IO_ERR))
+        (source "$REPO_GIT/hooks/gitpushy-$PUSHY_BRANCH-branch" 1> >(tee $IO_OUT) 2> >(tee $IO_ERR))
 
         # capture exit status
         PUSHY_STATUS=$?
@@ -438,14 +441,14 @@ gitpushy-push-branch() {
     fi
 
     # switch to bare repo
-    [ -n "$REPO_BARE" ] && cd $REPO_BARE
+    [ -n "$OLD_PWD_DIR" ] && cd $OLD_PWD_DIR
 
     # report errors
-    [ $? != 0 ] && echo "GitPushy - Failed to find $REPO_BARE" >&2 && return $?
+    [ $? != 0 ] && echo "GitPushy - Failed to find $OLD_PWD_DIR" >&2 && return $?
 
     # reset git orientation
-    if [ -n "$REPO_DIR" ]; then
-        export GIT_DIR=$REPO_DIR
+    if [ -n "$OLD_GIT_DIR" ]; then
+        export GIT_DIR="$OLD_GIT_DIR"
     else
         unset GIT_DIR
     fi
