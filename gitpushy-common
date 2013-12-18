@@ -530,9 +530,8 @@ gitpushy-clone-temp() {
     if [ $CLONE_STATUS = 0 ]; then
         echo "GitPushy - Working Dir: $(pwd)"
         echo export GIT_DIR="$(pwd)/.git"
-        export GIT_DIR="$(cd "$(git rev-parse --git-dir)"; pwd)"
+        export GIT_DIR="$(pwd)/.git"
 
-        echo git status
         git status 1>/dev/null 2>/dev/null
         CLONE_STATUS=$?
 
