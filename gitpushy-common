@@ -417,7 +417,6 @@ gitpushy-push-branch() {
         (source "$REPO_GIT/hooks/gitpushy-$PUSHY_BRANCH-branch" 1> >(tee $IO_OUT) 2> >(tee $IO_ERR))
 
         # capture exit status
-        PUSHY_STATUS=$?
         [ -s $IO_ERR ] && PUSHY_STATUS=500
     else
         # Process GitPushy Main Trigger
@@ -498,7 +497,7 @@ gitpushy-push-replicate() {
         REPLICA_STATUS=$?
 
         if [ $REPLICA_STATUS != 0 ]; then
-            echo "GitPushy - Failed to merge $PUSHY_BRANCH into $REPLICA_BRANCH"
+            echo "GitPushy - Failed to merge $PUSHY_BRANCH into $REPLICA_BRANCH" >&2
             git merge --abort 1>/dev/null 2>/dev/null
             git reset --hard HEAD 1>/dev/null 2>/dev/null
         else
@@ -513,7 +512,7 @@ gitpushy-push-replicate() {
         git fetch "$REPLICA_REMOTE" 1>/dev/null 2>/dev/null
         REPLICA_STATUS=$?
 
-        [ $REPLICA_STATUS != 0 ] && echo "GitPushy - Failed to fetch $(git config --get "remote.$REPLICA_REMOTE.url")"
+        [ $REPLICA_STATUS != 0 ] && echo "GitPushy - Failed to fetch $(git config --get "remote.$REPLICA_REMOTE.url")" >&2
     fi
 
     # merge if exists from REPLICA_REMOTE/PUSHY_BRANCH into REPLICA_BRANCH
@@ -522,7 +521,7 @@ gitpushy-push-replicate() {
         REPLICA_STATUS=$?
 
         if [ $REPLICA_STATUS != 0 ]; then
-            echo "GitPushy - Failed to merge $REPLICA_REMOTE/$PUSHY_BRANCH into $REPLICA_BRANCH"
+            echo "GitPushy - Failed to merge $REPLICA_REMOTE/$PUSHY_BRANCH into $REPLICA_BRANCH" >&2
             git merge --abort 1>/dev/null 2>/dev/null
             git reset --hard HEAD 1>/dev/null 2>/dev/null
         else
@@ -539,7 +538,7 @@ gitpushy-push-replicate() {
 
         echo "----------"
 
-        [ $REPLICA_STATUS != 0 ] && echo "GitPushy - Failed to push $(git config --get "remote.$REPLICA_REMOTE.url")"
+        [ $REPLICA_STATUS != 0 ] && echo "GitPushy - Failed to push $(git config --get "remote.$REPLICA_REMOTE.url")" >&2
     fi
 
     # switch to PUSHY_BRANCH
@@ -551,7 +550,7 @@ gitpushy-push-replicate() {
         REPLICA_STATUS=$?
 
         if [ $REPLICA_STATUS != 0 ]; then
-            echo "GitPushy - Failed to merge $REPLICA_BRANCH into $REPLICA_BRANCH"
+            echo "GitPushy - Failed to merge $REPLICA_BRANCH into $REPLICA_BRANCH" >&2
             git merge --abort 1>/dev/null 2>/dev/null
             git reset --hard HEAD
         else
@@ -561,9 +560,9 @@ gitpushy-push-replicate() {
 
     # report success
     if [ $REPLICA_STATUS = 0 ]; then
-        echo "GitPushy - Syncronization to $REPLICA_SERVER complete!"
+        echo "GitPushy - Syncronized $REPLICA_SERVER"
     else
-        echo "GitPushy - Failed syncronize to $REPLICA_SERVER with status $REPLICA_STATUS"
+        echo "GitPushy - Failed syncronize to $REPLICA_SERVER with status $REPLICA_STATUS" >&2
     fi
 
     return $REPLICA_STATUS
