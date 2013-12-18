@@ -458,6 +458,7 @@ gitpushy-push-branch() {
 # @usage gitpushy-push-replicate {hostname}
 #
 gitpushy-push-replicate() {
+    # set local variables
     local REPLICA_STATUS=0
     local REPLICA_SERVER="$1"
     local REPLICA_REMOTE="replicate-$REPLICA_SERVER"
