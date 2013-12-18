@@ -487,7 +487,7 @@ gitpushy-push-replicate() {
         git checkout "$REPLICA_BRANCH" 1>/dev/null 2>/dev/null
         REPLICA_STATUS=$?
 
-        [ $REPLICA_STATUS != 0 ] && echo "GitPushy - Cannot access branch $REPLICA_BRANCH" 2>&
+        [ $REPLICA_STATUS != 0 ] && echo "GitPushy - Cannot access branch $REPLICA_BRANCH" >&2
     fi
 
     # merge from PUSHY_BRANCH into REPLICA_BRANCH
