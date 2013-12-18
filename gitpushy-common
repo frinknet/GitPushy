@@ -514,7 +514,7 @@ gitpushy-push-replicate() {
         git fetch "$REPLICA_REMOTE" 1>/dev/null 2>/dev/null
         REPLICA_STATUS=$?
 
-        [ $REPLICA_STATUS != 0 ] "GitPushy - Failed to fetch $(git config --get "remote.$REPLICA_REMOTE.url")"
+        [ $REPLICA_STATUS != 0 ] && echo "GitPushy - Failed to fetch $(git config --get "remote.$REPLICA_REMOTE.url")"
     fi
 
     # merge if exists from REPLICA_REMOTE/PUSHY_BRANCH into REPLICA_BRANCH
@@ -533,8 +533,8 @@ gitpushy-push-replicate() {
 
     # push to remote server
     if [ $REPLICA_STATUS = 0 ] && [ "$(gitpushy-committer)" = "GitPushy" ]; then
-        git push "$REPLICA_REMOTE" "$REPLICA_BRANCH:$PUSHY_BRANCH"
-        REPLICA_STATUS=$?
+        git push "$REPLICA_REMOTE" "$REPLICA_BRANCH:$PUSHY_BRANCH" | sed "s/^remote/$REPLICA_SERVER/g"
+        REPLICA_STATUS=${PIPESTATUS[0]}
 
         [ $REPLICA_STATUS != 0 ] "GitPushy - Failed to push $(git config --get "remote.$REPLICA_REMOTE.url")"
     fi
