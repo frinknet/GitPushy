@@ -64,19 +64,28 @@ gitpushy-trigger() {
     # setup pushy environment variables
     export PUSHY_ENV="    # $PUSHY_BRANCH $PUSHY_TRIGGER config $(echo; echo "$PUSHY_CONFIG" | tr '\n' '\0' | xargs -0 -I {} echo "    {}")
 
-    # extended environment variables
-    PUSHY_BUILD_DIR="$(echo "$PUSHY_BUILD_DIR" | sed 's/^~/$HOME/')"
-    PUSHY_STAGE_DIR="$(echo "$PUSHY_STAGE_DIR" | sed 's/^~/$HOME/')"
-    PUSHY_DEPLOY_DIR="$(echo "$PUSHY_DEPLOY_DIR" | sed 's/^~/$HOME/')"
-    PUSHY_DEPLOY_ARCHIVE="$(echo "$PUSHY_DEPLOY_ARCHIVE" | sed 's/^~/$HOME/')"
-    PUSHY_DEPLOY_HOTSWAP='$PUSHY_DEPLOY_HOTSWAP'
-    PUSHY_VERBOSE='$PUSHY_VERBOSE'
-    PUSHY_SERVER='$PUSHY_SERVER'
-    PUSHY_REMOTE='$PUSHY_REMOTE'
+    # gitpushy environment
+    PUSHY_REPO='$PUSHY_REPO'
     PUSHY_BRANCH='$PUSHY_BRANCH'
+    PUSHY_TRIGGER='$PUSHY_TRIGGER'
+    PUSHY_TRIGGERS=({$PUSHY_TRIGGERS[@]})
+
+    # gitpushy build directives
+    PUSHY_DEPLOY_HOTSWAP='$PUSHY_DEPLOY_HOTSWAP'
+    PUSHY_DEPLOY_ARCHIVE="$(echo "$PUSHY_DEPLOY_ARCHIVE" | sed 's/^~/$HOME/')"
+    PUSHY_DEPLOY_DIR="$(echo "$PUSHY_DEPLOY_DIR" | sed 's/^~/$HOME/')"
+    PUSHY_STAGE_DIR="$(echo "$PUSHY_STAGE_DIR" | sed 's/^~/$HOME/')"
+    PUSHY_BUILD_DIR="$(echo "$PUSHY_BUILD_DIR" | sed 's/^~/$HOME/')"
+    PUSHY_BUILD_KEEP='$PUSHY_BUILD_KEEP'
+
+    # numeric switches
+    PUSHY_VERBOSE=$PUSHY_VERBOSE
+    PUSHY_REMOTE=$PUSHY_REMOTE
+
+    # remote server definition
+    PUSHY_SERVER='$PUSHY_SERVER'
     PUSHY_PORT='$PUSHY_PORT'
     PUSHY_USER='$PUSHY_USER'
-    PUSHY_REPO='$PUSHY_REPO'
     "
 
     # show commands run if verbosity is set
@@ -345,23 +354,29 @@ gitpushy-deploy() {
 # @usage gitpushy-push-branch {branch}
 #
 gitpushy-push-branch() {
-    # Export pushy variables to main environment
+    # gitpushy environment
+    export PUSHY_REPO="$(gitpushy-repo-name)"
+    export PUSHY_BRANCH="$1"
+    export PUSHY_TRIGGER=""
+    export PUSHY_TRIGGERS=()
+
+    # gitpushy build directives
     export PUSHY_DEPLOY_HOTSWAP="-$(date +%Y%m%d-%H%M%S)"
     export PUSHY_DEPLOY_ARCHIVE="~/$PUSHY_REPO-$(date +%Y%m%d-%H%M%S)"
     export PUSHY_DEPLOY_DIR=""
+    export PUSHY_STAGE_DIR="~/pushy-staging-$PUSHY_REPO-$PUSHY_BRANCH"
+    export PUSHY_BUILD_DIR="/tmp/pushy-build-$PUSHY_REPO-$PUSHY_BRANCH-$(date +%Y%m%d-%H%M%S)-$RANDOM"
     export PUSHY_BUILD_KEEP=""
-    export PUSHY_BUILD_DIR="/tmp/pushy-build-$PUSHY_REPO-$1-$(date +%Y%m%d-%H%M%S)-$RANDOM"
-    export PUSHY_STAGE_DIR="~/pushy-staging-$PUSHY_REPO-$1"
+
+    # numeric switches
     export PUSHY_VERBOSE=0
-    export PUSHY_STATUS=0
     export PUSHY_REMOTE=0
-    export PUSHY_BRANCH="$1"
+    export PUSHY_STATUS=0
+
+    # remote server definition
     export PUSHY_SERVER="$HOSTNAME"
-    export PUSHY_TRIGGERS=()
-    export PUSHY_TRIGGER=""
     export PUSHY_PORT=22
     export PUSHY_USER="$(whoami)"
-    export PUSHY_REPO="$(gitpushy-repo-name)"
 
     # remember current repo settings
     local OLD_GIT_DIR="$GIT_DIR"
