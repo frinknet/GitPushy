@@ -413,12 +413,8 @@ gitpushy-push-branch() {
         local IO_OUT=gitpushy-$1-branch.output
         local IO_ERR=gitpushy-$1-branch.error
 
-        echo "=========="
-
         # run branch hook
         (source "$REPO_GIT/hooks/gitpushy-$PUSHY_BRANCH-branch" 1> >(tee $IO_OUT) 2> >(tee $IO_ERR))
-
-        echo "=========="
 
         # capture exit status
         [ $PUSHY_STATUS = 0 ] && [ -s $IO_ERR ] && PUSHY_STATUS=500
