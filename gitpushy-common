@@ -324,7 +324,7 @@ gitpushy-deploy() {
             if [ $? != 0 ]; then
                 echo "Deploying to blank directory: $PUSHY_DEPLOY_DIR"
             elif [ -n "$PUSHY_DEPLOY_HOTSWAP" ]; then
-                OLD_HOTSWAP=$(gitpushy-absolute-path $PUSHY_DEPLOY_DIR)
+                OLD_HOTSWAP=$PUSHY_DEPLOY_DIR
             elif [ -n "$PUSHY_DEPLOY_ARCHIVE" ]; then
                 tar czf "$PUSHY_DEPLOY_ARCHIVE.tgz" .
             fi
