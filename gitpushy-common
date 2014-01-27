@@ -758,7 +758,7 @@ gitpushy-cat() {
     [ -z "$PUSHY_BRANCH" ] && PUSHY_BRANCH=$(gitpushy-branch-name)
 
     # cat files in repo
-     for file in $@; do
+    for file in $@; do
         git show refs/heads/$PUSHY_BRANCH:$file 2>/dev/null
     done
 }

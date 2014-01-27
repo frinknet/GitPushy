@@ -27,5 +27,25 @@ export PUSHY_SERVER="$HOSTNAME"
 export PUSHY_PORT=22
 export PUSHY_USER="$(whoami)"
 
+# remote server definition
+export PUSHY_SERVER="$HOSTNAME"
+export PUSHY_PORT=22
+export PUSHY_USER="$(whoami)"
+
+# remember current repo settings
+local OLD_GIT_DIR="$GIT_DIR"
+local OLD_PWD_DIR="$(pwd)"
+local REPO_GIT="$(cd "$(git rev-parse --git-dir)"; pwd)"
+
+# set GIT_DIR to PWD if not set
+export GIT_DIR="$REPO_GIT"
+
 # start GitPushy
 gitpushy-trigger cron
+
+# reset git orientation
+if [ -n "$OLD_GIT_DIR" ]; then
+    export GIT_DIR="$OLD_GIT_DIR"
+else
+    unset GIT_DIR
+fi
