@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # include GitPushy common functions
-source hooks/gitpushy-common
+source $(dirname $0)/gitpushy-common
 
 # gitpushy environment
 export PUSHY_REPO="$(gitpushy-repo-name)"
