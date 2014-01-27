@@ -528,7 +528,7 @@ gitpushy-push-replicate() {
     gitpushy-server-is-local "$REPLICA_SERVER" && return 0
 
     # check to make sure we don't loop endlessly
-    [ "$(gitpushy-committer)" = "GitPushy" ] && return 508
+    [ "$(gitpushy-author-name)" = "GitPushy" ] && return 508
 
     # check if we are in a repository
     git status 1>/dev/null 2>/dev/null
@@ -587,7 +587,7 @@ gitpushy-push-replicate() {
     fi
 
     # push to remote server
-    if [ $REPLICA_STATUS = 0 ] && [ "$(gitpushy-committer)" = "GitPushy" ]; then
+    if [ $REPLICA_STATUS = 0 ] && [ "$(gitpushy-author-name)" = "GitPushy" ]; then
         echo "----------"
 
         local IO_OUT=gitpushy-$REPLICA_BRANCH.output
@@ -795,11 +795,11 @@ gitpushy-branch-name() {
 }
 
 ##
-# Echo most recent committer
+# Echo most recent commit author's name
 #
-# @usage gitpushy-committer
+# @usage gitpushy-author-name
 #
-gitpushy-committer() {
+gitpushy-author-name() {
     git log -1|grep -Po "(?<=Author:\s).*(?=\s+\<)"
 }
 
