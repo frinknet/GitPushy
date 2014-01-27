@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# include GitPushy common functions
+source hooks/gitpushy-common
+
+# start GitPushy
+gitpushy-push-branch cron
+
