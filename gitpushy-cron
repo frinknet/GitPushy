@@ -39,8 +39,47 @@ export REPO_GIT="$(cd "$(git rev-parse --git-dir)"; pwd)"
 # set GIT_DIR to PWD if not set
 export GIT_DIR="$REPO_GIT"
 
+# check if branch was passed
+[ -z "$PUSHY_BRANCH" ] && echo "GitPushy - branch was not passed to gitpushy-push-branch" && return 500
+
+# check if branch exists
+[ ! -f "$REPO_GIT/refs/heads/$PUSHY_BRANCH" ] && echo "GitPushy - branch does not exist - $PUSHY_REPO:$PUSHY_BRANCH" && return 500
+
+# prepare config script
+PUSHY_CONFIG="$(gitpushy-script config main)"
+
+# prepare custom script
+PUSHY_CUSTOM="$(gitpushy-script custom main)"
+
+# check if this branch has gitpushy data
+[ ! -f "$REPO_GIT/hooks/gitpushy-$PUSHY_BRANCH-branch" ] && [ -z "$PUSHY_CONFIG$PUSHY_CUSTOM" ] && echo "No GitPushy for $PUSHY_REPO:$PUSHY_BRANCH" && return 0
+
+# run config to set PUSHY_BUILD_DIR and PUSHY_BUILD_KEEP
+eval "$( echo "$PUSHY_CONFIG" | grep '^PUSHY_BUILD_\(DIR\|KEEP\)=')"
+
+# make a switch to clean local clone
+[ $PUSHY_STATUS = 0 ] && gitpushy-clone-temp "$PUSHY_BUILD_DIR"
+local CLONE_STATUS=$?
+
+# report errors
+[ $CLONE_STATUS != 0 ] && echo "GitPushy - Failed to clone repo to $PUSHY_BUILD_DIR" >&2 && PUSHY_STATUS=$CLONE_STATUS
+
 # start GitPushy
 gitpushy-trigger cron
+
+# report errors
+[ $PUSHY_STATUS != 0 ] && echo "GitPushy - Unsuccessful build for $PUSHY_BRANCH with status $PUSHY_STATUS" >&2
+
+# is PUSHY_BUILD_KEEP specified
+if [ -n "$PUSHY_BUILD_KEEP" ]; then
+    echo "GitPushy - Keeping Dir: $PUSHY_BUILD_DIR"
+else
+    gitpushy-clean-temp $PUSHY_BUILD_DIR
+fi
+
+# switch to bare repo
+[ -n "$OLD_PWD_DIR" ] && cd $OLD_PWD_DIR
+[ $? != 0 ] && echo "GitPushy - Failed to find $OLD_PWD_DIR" >&2 && return $?
 
 # reset git orientation
 if [ -n "$OLD_GIT_DIR" ]; then
