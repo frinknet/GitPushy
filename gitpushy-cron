@@ -33,9 +33,8 @@ export PUSHY_PORT=22
 export PUSHY_USER="$(whoami)"
 
 # remember current repo settings
-local OLD_GIT_DIR="$GIT_DIR"
-local OLD_PWD_DIR="$(pwd)"
-local REPO_GIT="$(cd "$(git rev-parse --git-dir)"; pwd)"
+export OLD_GIT_DIR="$GIT_DIR"
+export REPO_GIT="$(cd "$(git rev-parse --git-dir)"; pwd)"
 
 # set GIT_DIR to PWD if not set
 export GIT_DIR="$REPO_GIT"
