@@ -1,0 +1,25 @@
+#!/bin/bash
+
+source $(dirname $0)/gitpushy-common
+echo source $(dirname $0)/gitpushy-common
+
+export PUSHY_BRANCH=$(gitpushy-branch-name)
+export PUSHY_REPO=$(gitpushy-repo-name)
+
+exit
+export PUSHY_USER=$(whoami)
+export PUSHY_PORT=22
+export PUSHY_SERVER="$HOSTNAME"
+export PUSHY_STATUS=0
+export PUSHY_REMOTE=0
+export PUSHY_VERBOSE=0
+export PUSHY_TRIGGER=""
+export PUSHY_TRIGGERS=()
+export PUSHY_DEPLOY_DIR=""
+export PUSHY_DEPLOY_HOTSWAP="-$(date +%Y%m%d-%H%M%S)"
+export PUSHY_DEPLOY_ARCHIVE="~/$PUSHY_REPO-$(date +%Y%m%d-%H%M%S)"
+export PUSHY_BUILD_DIR="/tmp/pushy-$1-build.$RANDOM$RANDOM"
+export PUSHY_BUILD_KEEP=""
+export PUSHY_STAGE_DIR="~/pushy-staging-$PUSHY_REPO-$PUSHY_BRANCH"
+
+gitpushy-$1 ${@:2}
