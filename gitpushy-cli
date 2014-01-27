@@ -1,11 +1,11 @@
 #!/bin/bash
 
+# include GitPushy common functions
 source $(dirname $0)/gitpushy-common
-echo source $(dirname $0)/gitpushy-common
 
+# basic variables
 export PUSHY_BRANCH=$(gitpushy-branch-name)
 export PUSHY_REPO=$(gitpushy-repo-name)
-
 export PUSHY_USER=$(whoami)
 export PUSHY_PORT=22
 export PUSHY_SERVER="$HOSTNAME"
@@ -21,4 +21,5 @@ export PUSHY_BUILD_DIR="/tmp/pushy-$1-build.$RANDOM$RANDOM"
 export PUSHY_BUILD_KEEP=""
 export PUSHY_STAGE_DIR="~/pushy-staging-$PUSHY_REPO-$PUSHY_BRANCH"
 
+# start GitPushy
 gitpushy-$1 ${@:2}
