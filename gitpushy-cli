@@ -6,7 +6,6 @@ echo source $(dirname $0)/gitpushy-common
 export PUSHY_BRANCH=$(gitpushy-branch-name)
 export PUSHY_REPO=$(gitpushy-repo-name)
 
-exit
 export PUSHY_USER=$(whoami)
 export PUSHY_PORT=22
 export PUSHY_SERVER="$HOSTNAME"
