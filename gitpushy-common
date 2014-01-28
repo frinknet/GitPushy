@@ -44,6 +44,7 @@ gitpushy-trigger() {
     PUSHY_CONFIG="$(gitpushy-script config $1)"
     PUSHY_CUSTOM="$(gitpushy-script custom $1)"
     PUSHY_TRIGGER="$1"
+    PUSHY_TRIGGERS=()
 
     # return 404 if script doesnt exist
     [ -z "$PUSHY_CONFIG$PUSHY_CUSTOM" ] && return 404
