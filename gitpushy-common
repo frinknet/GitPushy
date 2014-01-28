@@ -27,7 +27,7 @@ gitpushy-init() {
     IFS=$OFS;
 
     for PUSHY_BRANCH in ${PUSHY_BRANCHES[@]}; do
-        gitpushy-push-branch $PUSHY_BRANCH
+        gitpushy-push-branch $PUSHY_BRANCH main
     done
 }
 
@@ -400,13 +400,13 @@ gitpushy-deploy() {
 ##
 # Run GitPushy triggers for a given branch
 #
-# @usage gitpushy-push-branch {branch}
+# @usage gitpushy-push-branch {branch} {trigger}
 #
 gitpushy-push-branch() {
     # gitpushy environment
     export PUSHY_REPO="$(gitpushy-repo-name)"
     export PUSHY_BRANCH="$1"
-    export PUSHY_TRIGGER=""
+    export PUSHY_TRIGGER="$2"
     export PUSHY_TRIGGERS=()
 
     # gitpushy build directives
@@ -442,10 +442,10 @@ gitpushy-push-branch() {
     [ ! -f "$REPO_GIT/refs/heads/$PUSHY_BRANCH" ] && echo "GitPushy - branch does not exist - $PUSHY_REPO:$PUSHY_BRANCH" && return 500
 
     # prepare config script
-    PUSHY_CONFIG="$(gitpushy-script config main)"
+    PUSHY_CONFIG="$(gitpushy-script config $PUSHY_TRIGGER)"
 
     # prepare custom script
-    PUSHY_CUSTOM="$(gitpushy-script custom main)"
+    PUSHY_CUSTOM="$(gitpushy-script custom $PUSHY_TRIGGER)"
 
     # check if this branch has gitpushy data
     [ ! -f "$REPO_GIT/hooks/gitpushy-$PUSHY_BRANCH-branch" ] && [ -z "$PUSHY_CONFIG$PUSHY_CUSTOM" ] && echo "No GitPushy for $PUSHY_REPO:$PUSHY_BRANCH" && return 0
@@ -477,7 +477,7 @@ gitpushy-push-branch() {
         [ $PUSHY_STATUS = 0 ] && [ -s $IO_ERR ] && PUSHY_STATUS=500
     else
         # Process GitPushy Main Trigger
-        gitpushy-trigger main
+        gitpushy-trigger $PUSHY_TRIGGER
 
         # loop through addtional triggers if there is no error
         [ $PUSHY_STATUS = 0 ] && for PUSHY_TRIGGER in ${PUSHY_TRIGGERS[@]}; do
