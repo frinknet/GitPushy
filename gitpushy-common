@@ -132,6 +132,12 @@ gitpushy-trigger() {
         return;
     fi
 
+
+    # loop through addtional triggers if there is no error
+    [ $PUSHY_STATUS = 0 ] && for PUSHY_TRIGGER in ${PUSHY_TRIGGERS[@]}; do
+        gitpushy-trigger $PUSHY_TRIGGER
+    done
+
     # echo status
     if [ $PUSHY_STATUS = 0 ]; then
         echo "GitPushy - Completed $DEPLOYMENT_RUN"
@@ -478,11 +484,6 @@ gitpushy-push-branch() {
     else
         # Process GitPushy Main Trigger
         gitpushy-trigger $PUSHY_TRIGGER
-
-        # loop through addtional triggers if there is no error
-        [ $PUSHY_STATUS = 0 ] && for PUSHY_TRIGGER in ${PUSHY_TRIGGERS[@]}; do
-            gitpushy-trigger $PUSHY_TRIGGER
-        done
     fi
 
     # report errors
