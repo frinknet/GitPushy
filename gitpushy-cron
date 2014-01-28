@@ -59,7 +59,7 @@ eval "$( echo "$PUSHY_CONFIG" | grep '^PUSHY_BUILD_\(DIR\|KEEP\)=')"
 
 # make a switch to clean local clone
 [ $PUSHY_STATUS = 0 ] && gitpushy-clone-temp "$PUSHY_BUILD_DIR"
-local CLONE_STATUS=$?
+export CLONE_STATUS=$?
 
 # report errors
 [ $CLONE_STATUS != 0 ] && echo "GitPushy - Failed to clone repo to $PUSHY_BUILD_DIR" >&2 && PUSHY_STATUS=$CLONE_STATUS
