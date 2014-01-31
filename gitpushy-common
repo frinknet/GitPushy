@@ -191,7 +191,6 @@ gitpushy-build() {
     echo '
         cd "$PUSHY_BUILD_DIR" 2>/dev/null
         [ $? != 0 ] && echo "directory does not exist - $PUSHY_BUILD_DIR" >&2 && exit 404
-        git reset --hard HEAD 1>/dev/null
 
         # repo build scripts' >> $IO_CMD
 
