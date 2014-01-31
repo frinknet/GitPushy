@@ -80,6 +80,7 @@ gitpushy-trigger() {
     PUSHY_STAGE_DIR="'"'$(echo "$PUSHY_STAGE_DIR" | sed 's/^~/$HOME/')'"'"
     PUSHY_BUILD_DIR="'"'$(echo "$PUSHY_BUILD_DIR" | sed 's/^~/$HOME/')'"'"
     PUSHY_BUILD_KEEP='$PUSHY_BUILD_KEEP'
+    PUSHY_BUILD_RESET='$PUSHY_BUILD_RESET'
 
     # numeric switches
     PUSHY_VERBOSE=$PUSHY_VERBOSE
@@ -199,8 +200,13 @@ gitpushy-build() {
     # prepare pushy build script
     echo '
         cd "$PUSHY_BUILD_DIR" 2>/dev/null
-        [ $? != 0 ] && echo "directory does not exist - $PUSHY_BUILD_DIR" >&2 && exit 404
+        [ $? != 0 ] && echo "directory does not exist - $PUSHY_BUILD_DIR" >&2 && exit 404'
 
+    [ "$PUSHY_BUILD_RESET" != "0" ] && echo '
+        #reset build directory
+        git reset --hard HEAD 1>/dev/null'
+
+    echo '
         # repo build scripts' >> $IO_CMD
 
     # add repo build scripts
@@ -427,7 +433,8 @@ gitpushy-push-branch() {
     export PUSHY_DEPLOY_DIR=""
     export PUSHY_STAGE_DIR="~/pushy-staging-$PUSHY_REPO-$PUSHY_BRANCH"
     export PUSHY_BUILD_DIR="/tmp/pushy-build-$PUSHY_REPO-$PUSHY_BRANCH-$(date +%Y%m%d-%H%M%S)-$RANDOM"
-    export PUSHY_BUILD_KEEP=""
+    export PUSHY_BUILD_KEEP=0
+    export PUSHY_BUILD_RESET=1
 
     # numeric switches
     export PUSHY_VERBOSE=0
@@ -496,7 +503,7 @@ gitpushy-push-branch() {
     [ $PUSHY_STATUS != 0 ] && echo "GitPushy - Unsuccessful build for $PUSHY_BRANCH with status $PUSHY_STATUS" >&2
 
     # is PUSHY_BUILD_KEEP specified
-    if [ -n "$PUSHY_BUILD_KEEP" ]; then
+    if [ "$PUSHY_BUILD_KEEP" != 0 ]; then
         echo "GitPushy - Keeping Dir: $PUSHY_BUILD_DIR"
     else
         gitpushy-clean-temp $PUSHY_BUILD_DIR
