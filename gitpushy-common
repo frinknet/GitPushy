@@ -37,6 +37,10 @@ gitpushy-init() {
 # @usage gitpushy-trigger {trigger}
 #
 gitpushy-trigger() {
+    local PREV_TRIGGER=$PUSHY_TRIGGER
+    local PREV_TRIGGERS=$PUSHY_TRIGGERS
+    local PREV_ENV=$PUSHY_ENV
+
     # check pushy status
     [ $PUSHY_STATUS != 0 ] && return $PUSHY_STATUS
 
@@ -142,6 +146,11 @@ gitpushy-trigger() {
     else
         echo "GitPushy - Exited $DEPLOYMENT_RUN with status $PUSHY_STATUS"
     fi
+
+    PUSHY_TRIGGER=PREV_TRIGGER
+    PUSHY_TRIGGERS=PREV_TRIGGERS
+
+    eval "$PREV_ENV" >& /dev/null
 
     # return pushy status
     return $PUSHY_STATUS
