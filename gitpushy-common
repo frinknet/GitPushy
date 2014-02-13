@@ -137,8 +137,8 @@ gitpushy-trigger() {
     fi
 
     # loop through addtional triggers if there is no error
-    [ $PUSHY_STATUS = 0 ] && for PUSHY_TRIGGER in ${PUSHY_TRIGGERS[@]}; do
-        gitpushy-trigger $PUSHY_TRIGGER
+    for PUSHY_TRIGGER in ${PUSHY_TRIGGERS[@]}; do
+        [ $PUSHY_STATUS = 0 ] && gitpushy-trigger $PUSHY_TRIGGER
     done
 
     # echo status
