@@ -17,7 +17,13 @@ gitpushy-init() {
     export PUSHY_BRANCH=""
     export PUSHY_BRANCHES=()
 
+    # loop through references recieved
     while read oldrev newrev refname; do
+        # check that we have permission
+        if (gitpushy-commit-message $newrev | grep "NOGITPUSHY"); then
+            echo "GiTPushy - $(git rev-parse --symbolic --abbrev-ref $refname) branch explicitly bypassed by commit" && return 0
+        fi
+
         PUSHY_BRANCHES+=($(git rev-parse --symbolic --abbrev-ref $refname))
     done
 
@@ -814,7 +820,16 @@ gitpushy-branch-name() {
 # @usage gitpushy-author-name
 #
 gitpushy-author-name() {
-    git log -1|grep -Po "(?<=Author:\s).*(?=\s+\<)"
+    git show --format=%an
+}
+
+##
+# Echo most recent commit message
+#
+# @usage gitpushy-commit-message {commit}
+#
+gitpushy-commit-message() {
+  git show -s --format=%B $1
 }
 
 ##
