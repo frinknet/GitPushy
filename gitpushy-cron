@@ -1,9 +1,12 @@
 #!/bin/bash
 
-# include GitPushy common functions
-source $(dirname $0)/gitpushy-common
+# change to hooks dir
+cd $(dirname $0)
 
-# change to base repo dir
+# include GitPushy common functions
+source gitpushy-common
+
+# change to repo dir
 cd "$(git rev-parse --show-cdup)"
 
 # start GitPushy on supplied branch with cron trigger
