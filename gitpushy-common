@@ -59,9 +59,13 @@ gitpushy-trigger() {
     # return 404 if script doesnt exist
     [ -z "$PUSHY_CONFIG$PUSHY_CUSTOM" ] && return 404
 
+    # setup IO files for debugging
+    local IO_CMD=gitpushy-$1-config.command
     local IO_OUT=gitpushy-$1-config.output
     local IO_ERR=gitpushy-$1-config.error
 
+    # save a copy for debugging
+    echo "$PUSHY_CONFIG" > $IO_CMD
     # run config scripts for deployment
     eval "$PUSHY_CONFIG" 1> >(tee $IO_OUT) 2> >(tee $IO_ERR)> >(tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-config - {}")
 
@@ -98,6 +102,9 @@ gitpushy-trigger() {
     PUSHY_USER='$PUSHY_USER'
     "
 
+    # save a copy of the environment for debugging
+    echo "$PUSHY_ENV" > gitpushy-$1-environment.command
+
     # show commands run if verbosity is set
     [ $PUSHY_VERBOSE != 0 ] && echo "$PUSHY_CONFIG" | nl -ba | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-config: {}"
 
@@ -110,8 +117,13 @@ gitpushy-trigger() {
     elif [ -n "$PUSHY_CUSTOM" ]; then
         local DEPLOYMENT_RUN="$1 custom script"
 
+        # setup IO files for debugging
+        local IO_CMD=gitpushy-$1-custom.command
         local IO_OUT=gitpushy-$1-custom.output
         local IO_ERR=gitpushy-$1-custom.error
+
+        # save a copy for debugging
+        echo "$PUSHY_CUSTOM" > $IO_CMD
 
         # show commands run if verbosity is set
         [ $PUSHY_VERBOSE != 0 ] && echo "$PUSHY_CUSTOM" | nl -ba | tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-custom: {}"
