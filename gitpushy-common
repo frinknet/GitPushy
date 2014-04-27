@@ -66,6 +66,7 @@ gitpushy-trigger() {
 
     # save a copy for debugging
     echo "$PUSHY_CONFIG" > $IO_CMD
+
     # run config scripts for deployment
     eval "$PUSHY_CONFIG" 1> >(tee $IO_OUT) 2> >(tee $IO_ERR)> >(tr '\n' '\0' | xargs -0 -I {} echo "GitPushy - gitpushy-$1-config - {}")
 
@@ -84,13 +85,13 @@ gitpushy-trigger() {
     # $PUSHY_BRANCH $PUSHY_TRIGGER config $(echo; echo "$PUSHY_CONFIG" | tr '\n' '\0' | xargs -0 -I {} echo "    {}")
 
     # gitpushy build directives
-    PUSHY_DEPLOY_HOTSWAP='$PUSHY_DEPLOY_HOTSWAP'
-    PUSHY_DEPLOY_ARCHIVE="'"'$(echo "$PUSHY_DEPLOY_ARCHIVE" | sed 's/^~/$HOME/')'"'"
-    PUSHY_DEPLOY_DIR="'"'$(echo "$PUSHY_DEPLOY_DIR" | sed 's/^~/$HOME/')'"'"
-    PUSHY_STAGE_DIR="'"'$(echo "$PUSHY_STAGE_DIR" | sed 's/^~/$HOME/')'"'"
     PUSHY_BUILD_DIR="'"'$(echo "$PUSHY_BUILD_DIR" | sed 's/^~/$HOME/')'"'"
     PUSHY_BUILD_KEEP='$PUSHY_BUILD_KEEP'
     PUSHY_BUILD_RESET='$PUSHY_BUILD_RESET'
+    PUSHY_STAGE_DIR="'"'$(echo "$PUSHY_STAGE_DIR" | sed 's/^~/$HOME/')'"'"
+    PUSHY_DEPLOY_DIR="'"'$(echo "$PUSHY_DEPLOY_DIR" | sed 's/^~/$HOME/')'"'"
+    PUSHY_DEPLOY_HOTSWAP='$PUSHY_DEPLOY_HOTSWAP'
+    PUSHY_DEPLOY_ARCHIVE="'"'$(echo "$PUSHY_DEPLOY_ARCHIVE" | sed 's/^~/$HOME/')'"'"
 
     # numeric switches
     PUSHY_VERBOSE=$PUSHY_VERBOSE
@@ -166,9 +167,11 @@ gitpushy-trigger() {
         echo "GitPushy - Exited $DEPLOYMENT_RUN with status $PUSHY_STATUS"
     fi
 
+    # return to previous triggers
     PUSHY_TRIGGER=PREV_TRIGGER
     PUSHY_TRIGGERS=PREV_TRIGGERS
 
+    # reinitiate environment variables
     eval "$PREV_ENV" >& /dev/null
 
     # return pushy status
@@ -184,6 +187,7 @@ gitpushy-build() {
     # check pushy status
     [ $PUSHY_STATUS != 0 ] && return $PUSHY_STATUS
 
+    # setup IO files for debugging
     local IO_CMD=gitpushy-$1-build.command
     local IO_OUT=gitpushy-$1-build.output
     local IO_ERR=gitpushy-$1-build.error
