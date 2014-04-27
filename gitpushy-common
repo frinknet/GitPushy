@@ -43,9 +43,9 @@ gitpushy-init() {
 # @usage gitpushy-trigger {trigger}
 #
 gitpushy-trigger() {
-    local PREV_TRIGGER=$PUSHY_TRIGGER
-    local PREV_TRIGGERS=$PUSHY_TRIGGERS
-    local PREV_ENV=$PUSHY_ENV
+    local PREV_TRIGGER="$PUSHY_TRIGGER"
+    local PREV_TRIGGERS="$PUSHY_TRIGGERS"
+    local PREV_ENV="$PUSHY_ENV"
 
     # check pushy status
     [ $PUSHY_STATUS != 0 ] && return $PUSHY_STATUS
@@ -168,11 +168,9 @@ gitpushy-trigger() {
     fi
 
     # return to previous triggers
-    PUSHY_TRIGGER=PREV_TRIGGER
-    PUSHY_TRIGGERS=PREV_TRIGGERS
-
-    # reinitiate environment variables
-    eval "$PREV_ENV" >& /dev/null
+    PUSHY_TRIGGER="$PREV_TRIGGER"
+    PUSHY_TRIGGERS="$PREV_TRIGGERS"
+    PUSHY_ENV="$PREV_ENV"
 
     # return pushy status
     return $PUSHY_STATUS
