@@ -919,7 +919,7 @@ gitpushy-absolute-path() {
 ##
 # change to git root
 #
-# @usage gitpushy-git-root
+# @usage gitpushy-cd-root
 #
 gitpushy-cd-root() {
   cd "$(gitpushy-absolute-path "$(git rev-parse --show-cdup)")"
