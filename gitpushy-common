@@ -915,3 +915,12 @@ gitpushy-absolute-path() {
     # get final DIR
     echo "$(cd "$(dirname "$FILE")"; pwd -P)/$(basename $FILE)"
 }
+
+##
+# change to git root
+#
+# @usage gitpushy-git-root
+#
+gitpushy-cd-root() {
+  cd "$(gitpushy-absolute-path "$(git rev-parse --show-cdup)")"
+}

@@ -7,7 +7,7 @@ cd $(dirname $0)
 source gitpushy-common
 
 # change to repo dir
-cd "$(git rev-parse --show-cdup)"
+gitpushy-cd-root
 
 # start GitPushy on supplied branch with cron trigger
 gitpushy-push-branch "$1" cron
