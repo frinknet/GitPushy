@@ -42,6 +42,8 @@ When GitPushy is triggered everything starts with the *main* GitPushy Trigger. T
     .gitpushy/common/{trigger}-config
     .gitpushy/{branch}/{trigger}-config
 
+    .gitpushy/common/custom*
+    .gitpushy/{branch}/custom*
     .gitpushy/common/{trigger}-custom*
     .gitpushy/{branch}/{trigger}-custom*
 
