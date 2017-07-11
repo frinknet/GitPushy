@@ -37,28 +37,28 @@ A fifth *custom* section can be added in place of the *build*, *stage* and *depl
 
 When GitPushy is triggered everything starts with the *main* GitPushy Trigger. The following files are run if they exist:
 
-    .gitpushy-config
-    .gitpushy-config-{branch}
-    .gitpushy-{trigger}-config
-    .gitpushy-{trigger}-config-{branch}
+    .gitpushy/common/config
+    .gitpushy/{branch}/config
+    .gitpushy/common/{trigger}-config
+    .gitpushy/{branch}/{trigger}-config
 
-    .gitpushy-{trigger}-custom*
-    .gitpushy-{trigger}-custom-{branch}*
+    .gitpushy/common/{trigger}-custom*
+    .gitpushy/{branch}/{trigger}-custom*
 
-    .gitpushy-build
-    .gitpushy-build-{branch}
-    .gitpushy-{trigger}-build
-    .gitpushy-{trigger}-build-{branch}
+    .gitpushy/common/build
+    .gitpushy{branch}/build
+    .gitpushy/common/{trigger}-build
+    .gitpushy/{branch}/{trigger}-build
 
-    .gitpushy-stage
-    .gitpushy-stage-{branch}
-    .gitpushy-{trigger}-stage
-    .gitpushy-{trigger}-stage-{branch}
+    .gitpushy/common/stage
+    .gitpushy/{branch}/stage
+    .gitpushy/common/{trigger}-stage
+    .gitpushy/{branch}/{trigger}-stage
 
-    .gitpushy-deploy
-    .gitpushy-deploy-{branch}
-    .gitpushy-{trigger}-deploy
-    .gitpushy-{trigger}-deploy-{branch}
+    .gitpushy/common/deploy
+    .gitpushy/{branch}/deploy
+    .gitpushy/common/{trigger}-deploy
+    .gitpushy/{branch}/{trigger}-deploy
 
 NOTE: If any of the *custom* scripts exist none of the other stage scripts are called unless the custom script calls them specifically.
 
