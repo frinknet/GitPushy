@@ -1,0 +1,18 @@
+#!/bin/bash
+# post-merge githook (https://git-scm.com/docs/githooks)
+
+# get the merge revs and refname for multiple use later
+oldrev=$(git rev-parse HEAD^)
+newrev=$(git rev-parse HEAD)
+refname=$(git rev-parse --symbolic --abbrev-ref HEAD)
+
+# include GitPushy common functions
+source .git/hooks/gitpushy-common
+
+# initialize GitPushy
+echo $oldrev $newrev $refname | gitpushy-init
+
+# You can call more post-merge hooks the same way
+#
+#   echo $oldrev $newrev $refname | your-post-receive
+#
